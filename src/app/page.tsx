@@ -205,8 +205,8 @@ export default function Home() {
   ];
 
   return (
-    <main>
-      <div className="grid grid-cols-10 gap-2 px-20 py-10 pr-[483px]">
+    <main className="flex items-center justify-center">
+      <div className="grid grid-cols-10 gap-2 px-20 py-10 ">
         {parkingSlots.map((slot) => (
           <ParkingSlot key={slot.slotNumber} {...slot} />
         ))}
