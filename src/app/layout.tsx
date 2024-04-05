@@ -18,7 +18,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className}`}>
         <div className="grid h-full grid-cols-12">
-          <div className="col-span-9">{children}</div>
+          <div className="col-span-9 h-full items-center justify-items-center">
+            {children}
+          </div>
           <div className="col-span-3 col-start-10">
             <Dashboard />
           </div>
