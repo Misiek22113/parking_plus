@@ -8,7 +8,7 @@ const ParkingSlotCount = ({
   isAvailableSlotCount,
 }: ParkingSlotCountProps) => {
   return (
-    <div className="grid grid-cols-5 px-3">
+    <div className="grid grid-cols-5">
       <div className="col-span-4 flex items-center justify-center rounded-l-lg bg-white px-4 text-center text-2xl text-black">
         {isAvailableSlotCount
           ? 'Ilość wolnych miejsc: '
