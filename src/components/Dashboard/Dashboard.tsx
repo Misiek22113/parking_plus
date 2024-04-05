@@ -1,4 +1,5 @@
 import ParkingSlotCount from '../ParkingSlotCount/ParkingSlotCount';
+import ParkingSlotData from './ParkingSlotData';
 
 const Dashboard = () => {
   return (
@@ -7,8 +8,8 @@ const Dashboard = () => {
         <ParkingSlotCount parkingSlotCount={10} isAvailableSlotCount={true} />
         <ParkingSlotCount parkingSlotCount={5} isAvailableSlotCount={false} />
       </div>
-      <div className="h-full bg-[#4B5563]">
-        <h1>GÓWNO</h1>
+      <div className="flex items-center justify-center bg-[#4B5563]">
+        <ParkingSlotData />
       </div>
     </div>
   );
