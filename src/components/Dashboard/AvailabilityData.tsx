@@ -30,10 +30,12 @@ const AvailabilityData = () => {
         <ParkingSlotCount parkingSlotCount={10} isAvailableSlotCount={true} />
         <ParkingSlotCount parkingSlotCount={5} isAvailableSlotCount={false} />
         <div className="flex justify-between">
-          <div className="min-h-12 min-w-12 bg-white">
+          <div className="flex min-h-12 min-w-12 items-center justify-center rounded-lg bg-white">
             <Image src={BAR_CHART_ICON} alt="Parking" />
           </div>
-          <div className="min-h-12 min-w-12 bg-white text-black">{ctime}</div>
+          <div className="flex items-center justify-center rounded-lg bg-white px-8 text-center text-lg font-bold text-black">
+            {ctime}
+          </div>
         </div>
       </div>
     </>
