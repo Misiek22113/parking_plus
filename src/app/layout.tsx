@@ -16,10 +16,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`h-screen ${inter.className}`}>
-        <div className="flex h-full flex-row justify-between">
-          {children}
-          <Dashboard />
+      <body className={`${inter.className}`}>
+        <div className="grid h-full grid-cols-12">
+          <div className="col-span-9">{children}</div>
+          <div className="col-span-3 col-start-10">
+            <Dashboard />
+          </div>
         </div>
       </body>
     </html>
