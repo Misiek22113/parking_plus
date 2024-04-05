@@ -1,13 +1,13 @@
 import { createContext } from 'react';
 
 interface SlotContext {
-  slotNumber: number;
-  setSlotNumber: (slotNumber: number) => void;
+  selectedSlotNumber: number;
+  setSelectedSlotNumber: (slotNumber: number) => void;
 }
 
 const slotContext = createContext<SlotContext>({
-  slotNumber: 0,
-  setSlotNumber: () => {},
+  selectedSlotNumber: 0,
+  setSelectedSlotNumber: () => {},
 });
 
 export const SelectedSlotContext = slotContext;

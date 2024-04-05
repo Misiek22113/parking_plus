@@ -19,7 +19,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className}`}>
         <SelectedSlotContext.Provider
-          value={{ slotNumber: selectedSlot, setSlotNumber: setSelectedSlot }}
+          value={{
+            selectedSlotNumber: selectedSlot,
+            setSelectedSlotNumber: setSelectedSlot,
+          }}
         >
           <div className="grid h-full grid-cols-12">
             <div className="col-span-9 h-full items-center justify-items-center">
