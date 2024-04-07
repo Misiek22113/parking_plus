@@ -9,7 +9,9 @@ const AccountLayout = ({
         <div className="bg-cyan-600 flex items-center justify-center text-4xl rounded-l-lg">
           Parking+
         </div>
-        {children}
+        <div className="flex flex-col items-center justify-center">
+          {children}
+        </div>
       </div>
     </div>
   );
