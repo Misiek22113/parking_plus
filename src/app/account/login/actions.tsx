@@ -1,10 +1,11 @@
 'use server';
-import { UserModel } from '@/models/User';
-import mongoose from 'mongoose';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import mongoose from 'mongoose';
+import { UserModel } from '@/models/User';
 
-export async function register(currentState: unknown, formData: FormData) {
-  console.info('Register function running');
+export async function login(formData: FormData) {
+  console.log('Login function running');
   const mongoDbUrl = process.env.MONGODB_URL;
 
   try {
@@ -25,18 +26,24 @@ export async function register(currentState: unknown, formData: FormData) {
       password: password as string,
     });
 
-    if (foundUser) {
-      console.info('User already exists');
-      throw new Error('User already exists');
+    if (!foundUser) {
+      console.info('Wrong username or password');
+      throw new Error('Wrong username or password');
     }
 
-    await UserModel.create({ username, password });
+    console.info('User logged in');
 
-    console.info('User created');
+    console.info(formData);
   } catch (error: any) {
     return error.message;
   } finally {
     mongoose.connection.close();
   }
-  return redirect('/account/login');
+  //   return redirect('/account/login');
+
+  //   console.log(formData.get('username'));
+  //   console.log(formData.get('password'));
+
+  //   cookies().set('session', '1234');
+  //   return redirect('/');
 }
