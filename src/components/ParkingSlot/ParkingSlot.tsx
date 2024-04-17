@@ -18,7 +18,7 @@ const ParkingSlot = ({ isAvailable, slotNumber }: ParkingSlotProps) => {
 
   return (
     <div
-      className={`flex min-h-28 max-w-20 cursor-pointer items-center justify-center rounded-lg text-5xl ${isAvailable ? ' bg-teal-500' : 'bg-red-500'} 
+      className={`flex min-h-28 max-w-28 cursor-pointer items-center justify-center rounded-lg text-5xl ${isAvailable ? ' bg-teal-500' : 'bg-red-500'} 
       ${selectedSlotNumber === slotNumber && 'border-4'}`}
       onClick={setIsSelected}
     >

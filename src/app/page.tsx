@@ -205,7 +205,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="grid h-full grid-cols-10 gap-2 px-20 py-10 ">
+    <div className="grid h-full grid-cols-10 gap-4 px-20 py-10 ">
       {parkingSlots.map((slot) => (
         <ParkingSlot key={slot.slotNumber} {...slot} />
       ))}
