@@ -1,6 +1,6 @@
 import ParkingSlot from '@/components/ParkingSlot/ParkingSlot';
 
-export default function Home() {
+export default function Dashboard() {
   const parkingSlots = [
     {
       isAvailable: true,

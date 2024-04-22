@@ -2,7 +2,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import mongoose from 'mongoose';
-import { UserModel } from '@/models/User';
+import { User, UserModel } from '@/models/User';
 import { AppError, encrypt } from '@/lib/utils';
 
 export async function login(currentState: unknown, formData: FormData) {
@@ -22,7 +22,7 @@ export async function login(currentState: unknown, formData: FormData) {
       throw new AppError('Username or password is empty');
     }
 
-    const foundUser = await UserModel.findOne({
+    const foundUser = await UserModel.findOne<User>({
       username: username as string,
       password: password as string,
     });
@@ -31,8 +31,16 @@ export async function login(currentState: unknown, formData: FormData) {
       throw new AppError('Wrong username or password');
     }
 
+    const userRole = foundUser.userRole;
+
     const expirationDate = new Date(Date.now() + 1000 * 60 * 60 * 1);
-    const token = await encrypt({ username, password, expirationDate });
+    const token = await encrypt({
+      username,
+      password,
+      userRole,
+      expirationDate,
+    });
+
     cookies().set('session', token, {
       expires: expirationDate,
       path: '/',

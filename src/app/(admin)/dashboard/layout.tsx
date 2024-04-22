@@ -1,6 +1,6 @@
 'use client';
 import { Inter } from 'next/font/google';
-import '../globals.css';
+import '../../globals.css';
 import Dashboard from '@/components/Dashboard/Dashboard';
 import { SelectedSlotContext } from '@/context/SelectedSlotContext';
 import { useState } from 'react';

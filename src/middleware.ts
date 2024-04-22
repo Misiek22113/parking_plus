@@ -1,39 +1,86 @@
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { decrypt } from './lib/utils';
+import { AppError, decrypt } from './lib/utils';
 
-export function middleware(req: NextRequest) {
-  if (req.nextUrl.pathname.startsWith('/_next')) {
-    return NextResponse.next();
-  }
-
-  if (
-    process.env.NODE_ENV === 'development' &&
-    process.env.OMIT_AUTH === 'true'
-  ) {
-    return NextResponse.next();
-  }
-
+export async function middleware(req: NextRequest) {
   const cookie = req.cookies.get('session')?.value;
 
-  try {
-    if (cookie) {
-      const decrypted = decrypt(cookie);
-      console.log('decrypted', decrypted);
+  if (
+    req.nextUrl.pathname.startsWith('/_next') ||
+    (process.env.NODE_ENV === 'development' && process.env.OMIT_AUTH === 'true')
+  ) {
+    return NextResponse.next();
+  } else if (req.nextUrl.pathname.startsWith('/account')) {
+    console.info('User is trying to access account page');
+    try {
+      const userRole = await getUserRoleFromCookie(cookie);
+      switch (userRole) {
+        case 'admin':
+          return NextResponse.redirect(new URL('/dashboard', req.url));
+        case 'user':
+          return NextResponse.redirect(new URL('/home', req.url));
+        default:
+          return NextResponse.redirect(new URL('/account/login', req.url));
+      }
+    } catch (error: any) {
+      return NextResponse.next();
     }
+  } else if (req.nextUrl.pathname.startsWith('/dashboard')) {
+    console.info('User is trying to access dashboard page');
+    try {
+      const userRole = await getUserRoleFromCookie(cookie);
+      switch (userRole) {
+        case 'admin':
+          return NextResponse.next();
+        case 'user':
+          return NextResponse.redirect(new URL('/home', req.url));
+        default:
+          return NextResponse.redirect(new URL('/account/login', req.url));
+      }
+    } catch (error: any) {
+      return NextResponse.redirect(new URL('/account/login', req.url));
+    }
+  } else if (req.nextUrl.pathname.startsWith('/home')) {
+    console.info('User is trying to access home page');
+    try {
+      const userRole = await getUserRoleFromCookie(cookie);
+      switch (userRole) {
+        case 'admin':
+          return NextResponse.redirect(new URL('/dashboard', req.url));
+        case 'user':
+          return NextResponse.next();
+        default:
+          return NextResponse.redirect(new URL('/account/login', req.url));
+      }
+    } catch (error: any) {
+      return NextResponse.redirect(new URL('/account/login', req.url));
+    }
+  } else {
+    try {
+      const userRole = await getUserRoleFromCookie(cookie);
+      switch (userRole) {
+        case 'admin':
+          return NextResponse.redirect(new URL('/dashboard', req.url));
+        case 'user':
+          return NextResponse.redirect(new URL('/home', req.url));
+        default:
+          return NextResponse.redirect(new URL('/account/login', req.url));
+      }
+    } catch (error: any) {
+      return NextResponse.redirect(new URL('/account/login', req.url));
+    }
+  }
+}
+
+async function getUserRoleFromCookie(cookie?: string) {
+  if (!cookie) {
+    throw new AppError('Cookie is not defined');
+  }
+  try {
+    const decrypted = await decrypt(cookie);
+    const tokenPayload = decrypted as unknown as TokenPayload;
+    return tokenPayload.userRole;
   } catch (error: any) {
-    console.log('error', error.message);
-    return NextResponse.redirect(new URL('/account/login', req.url));
+    throw new AppError('Error getting user role from cookie');
   }
-
-  if (!cookie && !req.nextUrl.pathname.startsWith('/account')) {
-    console.log('redirecting');
-    return NextResponse.redirect(new URL('/account/login', req.url));
-  }
-
-  // if (cookie && req.nextUrl.pathname.startsWith('/account')) {
-  //   return NextResponse.redirect(new URL('/', req.url));
-  // }
-
-  return NextResponse.next();
 }
