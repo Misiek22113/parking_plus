@@ -37,8 +37,10 @@ export default function AccountCars() {
             <CardDescription className="pb-4">
               Input your car&apos;s license plate to add it to your account.
             </CardDescription>
-            <Input placeholder="Car license plate" />
-            <Button className="mt-4">Add</Button>
+            <form>
+              <Input placeholder="Car license plate" />
+              <Button className="mt-4">Add</Button>
+            </form>
           </div>
           <Separator className="col-span-2 mx-4" orientation="vertical" />
           <div className="col-span-5">
@@ -46,21 +48,23 @@ export default function AccountCars() {
             <CardDescription className="pb-4">
               Select the car you want to remove from your account.
             </CardDescription>
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a car" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Your cars</SelectLabel>
-                  {Array.from({ length: 5 }).map((_, index) => (
-                    <SelectItem key={index} value={`car-${index}`}>
-                      Car {index}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
+            <form>
+              <Select>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select a car" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Your cars</SelectLabel>
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <SelectItem key={index} value={`car-${index}`}>
+                        Car {index}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </form>
             <Button className="mt-4" variant="destructive">
               Remove
             </Button>

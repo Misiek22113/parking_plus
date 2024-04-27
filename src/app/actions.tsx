@@ -99,3 +99,37 @@ export async function register(currentState: unknown, formData: FormData) {
   }
   return redirect('/account/login');
 }
+
+export async function logout() {
+  console.info('Logout function running');
+  cookies().set('session', '', { expires: new Date(0), path: '/' });
+  return redirect('/account/login');
+}
+
+export async function orderParkingSpace(
+  currentState: unknown,
+  formData: FormData
+) {
+  console.log(formData.getAll('selectedCar'));
+  console.info('Order parking space function running');
+}
+
+export async function cancelParkingSpace(
+  currentState: unknown,
+  formData: FormData
+) {
+  console.log(formData.getAll('selectedReservation'));
+  console.info('Cancel parking space function running');
+}
+
+export async function addCar(currentState: unknown, formData: FormData) {
+  console.info('Add car function running');
+}
+
+export async function removeCar(currentState: unknown, formData: FormData) {
+  console.info('Remove car function running');
+}
+
+export async function addFunds(currentState: unknown, formData: FormData) {
+  console.info('Add funds function running');
+}
