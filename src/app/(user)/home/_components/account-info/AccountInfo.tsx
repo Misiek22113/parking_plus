@@ -1,3 +1,7 @@
+'use client';
+
+import { logout } from '@/app/actions';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardHeader,
@@ -16,11 +20,14 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { useFormState, useFormStatus } from 'react-dom';
 
 export default function AccountInfo() {
+  const [errorMessageLogout, dispatchLogout] = useFormState(logout, undefined);
+
   return (
-    <Card title="Account info" className="row-span-3">
-      <CardHeader className=" bg-muted">
+    <Card title="Account info" className="row-span-3 h-full overflow-hidden">
+      <CardHeader className="h-min bg-muted">
         <CardTitle>Your account information</CardTitle>
         <CardDescription>
           All of your account information is stored here. You can see your ID,
@@ -28,7 +35,7 @@ export default function AccountInfo() {
           <p className="pt-2 text-lg">Your account ID: 123456</p>
         </CardDescription>
       </CardHeader>
-      <CardContent className="h-1/2 pt-4">
+      <CardContent className="mt-4 h-1/2">
         <p className="text-lg">Your account balance</p>
         <p className="py-2 text-4xl font-bold">100 PLN</p>
         <Separator className="my-4" />
@@ -46,7 +53,7 @@ export default function AccountInfo() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array.from({ length: 10 }).map((_, index) => (
+              {Array.from({ length: 20 }).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell className="font-medium">1239012</TableCell>
                   <TableCell>17</TableCell>
@@ -58,7 +65,33 @@ export default function AccountInfo() {
             </TableBody>
           </Table>
         </ScrollArea>
+        <Separator className="my-4" />
+        <p className="text-lg">Account settings</p>
+        <form action={dispatchLogout}>
+          <LogoutButton />
+        </form>
       </CardContent>
     </Card>
   );
 }
+
+const LogoutButton = () => {
+  const { pending } = useFormStatus();
+
+  const handleClick = (event: any) => {
+    if (pending) {
+      event.preventDefault();
+    }
+  };
+
+  return (
+    <Button
+      aria-disabled={pending}
+      type="submit"
+      onClick={handleClick}
+      className="mt-4"
+    >
+      Logout
+    </Button>
+  );
+};

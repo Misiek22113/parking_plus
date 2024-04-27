@@ -5,8 +5,8 @@ import AccountCars from './_components/account_cars/AccountCars';
 
 export default function Home() {
   return (
-    <div className="grid h-full w-full grid-cols-2 gap-4 p-16">
-      <div className="flex h-full w-full flex-1 flex-col gap-4">
+    <div className="relative grid h-screen w-full grid-cols-2 gap-4 overflow-hidden p-16">
+      <div className="flex h-full w-full flex-col gap-4">
         <ParkingPlace />
         <AccountCars />
         <AccountFunds />
