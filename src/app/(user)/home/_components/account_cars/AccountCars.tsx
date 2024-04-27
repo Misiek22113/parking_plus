@@ -21,9 +21,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Car } from '@/models/Car';
 import { useFormState, useFormStatus } from 'react-dom';
 
-export default function AccountCars() {
+export default function AccountCars({ carList = [] }: { carList?: Car[] }) {
   const [errorMessageAdd, dispatchAdd] = useFormState(addCar, undefined);
   const [errorMessageRemove, dispatchRemove] = useFormState(
     removeCar,
@@ -66,9 +67,9 @@ export default function AccountCars() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Your cars</SelectLabel>
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <SelectItem key={index} value={`car-${index}`}>
-                        Car {index}
+                    {carList.map((car, index) => (
+                      <SelectItem key={index} value={`${car._id}`}>
+                        {car.registrationPlate}
                       </SelectItem>
                     ))}
                   </SelectGroup>

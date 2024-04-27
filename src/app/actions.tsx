@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import mongoose from 'mongoose';
 import { User, UserModel } from '@/models/User';
 import { AppError, encrypt, getUserInfoFromCookie } from '@/lib/utils';
-import { CarModel } from '@/models/Car';
+import { Car, CarModel } from '@/models/Car';
 
 export async function login(currentState: unknown, formData: FormData) {
   console.log('Login function running');
@@ -163,14 +163,87 @@ export async function addCar(currentState: unknown, formData: FormData) {
   } finally {
     mongoose.connection.close();
   }
+  return redirect('/');
 }
 
 export async function removeCar(currentState: unknown, formData: FormData) {
-  console.log(formData.getAll('removedCar'));
-  console.info('Remove car function running');
+  const mongoDbUrl = process.env.MONGODB_URL;
+  const cookieStore = cookies();
+
+  const token = cookieStore.get('session')?.value;
+  const { username } = await getUserInfoFromCookie(token);
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    const removedCarId = formData.get('removedCar');
+
+    if (!removedCarId) {
+      throw new AppError('Car ID is empty');
+    }
+
+    await mongoose.connect(mongoDbUrl);
+    const foundUser = await UserModel.findOne<User>({
+      username,
+    });
+
+    if (!foundUser) {
+      throw new AppError('User not found');
+    }
+
+    const userId = foundUser._id;
+
+    await CarModel.deleteOne({
+      ownerId: userId,
+      _id: removedCarId,
+    });
+
+    console.info('Car removed');
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return AppError.message;
+  } finally {
+    mongoose.connection.close();
+  }
+  return redirect('/');
 }
 
 export async function addFunds(currentState: unknown, formData: FormData) {
   console.log(formData.getAll('moneyAmount'));
   console.info('Add funds function running');
+}
+
+export default async function getCars(): Promise<Car[]> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+  const cookieStore = cookies();
+
+  const token = cookieStore.get('session')?.value;
+  const { username } = await getUserInfoFromCookie(token);
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    await mongoose.connect(mongoDbUrl);
+    const userInfo = await UserModel.findOne<User>({
+      username: username,
+    });
+
+    if (!userInfo) {
+      throw new AppError('User not found');
+    }
+
+    const userId = userInfo._id;
+    const cars = await CarModel.find<Car>({
+      ownerId: userId,
+    });
+
+    return cars;
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return AppError.message;
+  } finally {
+    mongoose.connection.close();
+  }
 }
