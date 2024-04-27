@@ -7,6 +7,7 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import DemoPaymentDialog from './DemoPaymentDialog';
 
 export default function AccountFunds() {
   return (
@@ -22,7 +23,7 @@ export default function AccountFunds() {
         Select the payment method to add funds to your account
       </CardContent>
       <CardFooter className="flex gap-4">
-        <Button>Demo</Button>
+        <DemoPaymentDialog />
         <Button disabled>Google Pay</Button>
         <Button disabled>BLIK</Button>
       </CardFooter>

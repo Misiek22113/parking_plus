@@ -133,5 +133,6 @@ export async function removeCar(currentState: unknown, formData: FormData) {
 }
 
 export async function addFunds(currentState: unknown, formData: FormData) {
+  console.log(formData.getAll('moneyAmount'));
   console.info('Add funds function running');
 }
