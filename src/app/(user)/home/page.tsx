@@ -1,23 +1,3 @@
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-  TableCaption,
-} from '@/components/ui/table';
 import ParkingPlace from './_components/parking-place/AccountPlace';
 import AccountFunds from './_components/account-funds/AccountFunds';
 import AccountInfo from './_components/account-info/AccountInfo';
