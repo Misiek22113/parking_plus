@@ -19,7 +19,7 @@ import {
 
 export default function AccountInfo() {
   return (
-    <Card title="Account info" className="row-span-2">
+    <Card title="Account info" className="row-span-3">
       <CardHeader className=" bg-muted">
         <CardTitle>Your account information</CardTitle>
         <CardDescription>

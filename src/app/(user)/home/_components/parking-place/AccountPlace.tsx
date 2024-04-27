@@ -52,8 +52,8 @@ export default function ParkingPlace() {
                   ))}
                 </SelectGroup>
               </SelectContent>
-              <Button className="mt-4">Order</Button>
             </Select>
+            <Button className="mt-4">Order</Button>
           </div>
           <Separator className="col-span-2 mx-4" orientation="vertical" />
           <div className="col-span-5">
