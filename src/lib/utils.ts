@@ -21,6 +21,21 @@ export async function decrypt(token: string) {
   return payload;
 }
 
+export async function getUserInfoFromCookie(
+  cookie?: string
+): Promise<TokenPayload> {
+  if (!cookie) {
+    throw new AppError('Cookie is not defined');
+  }
+  try {
+    const decrypted = await decrypt(cookie);
+    const tokenPayload = decrypted as unknown as TokenPayload;
+    return tokenPayload;
+  } catch (error: any) {
+    throw new AppError('Error getting user role from cookie');
+  }
+}
+
 export class AppError extends Error {
   constructor(message: string) {
     super(message);

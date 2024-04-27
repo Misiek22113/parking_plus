@@ -3,7 +3,8 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import mongoose from 'mongoose';
 import { User, UserModel } from '@/models/User';
-import { AppError, encrypt } from '@/lib/utils';
+import { AppError, encrypt, getUserInfoFromCookie } from '@/lib/utils';
+import { CarModel } from '@/models/Car';
 
 export async function login(currentState: unknown, formData: FormData) {
   console.log('Login function running');
@@ -123,8 +124,45 @@ export async function cancelParkingSpace(
 }
 
 export async function addCar(currentState: unknown, formData: FormData) {
-  console.log(formData.getAll('addedCar'));
-  console.info('Add car function running');
+  const mongoDbUrl = process.env.MONGODB_URL;
+  const cookieStore = cookies();
+
+  const token = cookieStore.get('session')?.value;
+  const { username } = await getUserInfoFromCookie(token);
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    const addedCarName = formData.get('addedCar');
+
+    if (!addedCarName) {
+      throw new AppError('Car name is empty');
+    }
+
+    await mongoose.connect(mongoDbUrl);
+    const foundUser = await UserModel.findOne<User>({
+      username,
+    });
+
+    if (!foundUser) {
+      throw new AppError('User not found');
+    }
+
+    const userId = foundUser._id;
+
+    await CarModel.create({
+      ownerId: userId,
+      registrationPlate: addedCarName,
+    });
+
+    console.info('Car added');
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return AppError.message;
+  } finally {
+    mongoose.connection.close();
+  }
 }
 
 export async function removeCar(currentState: unknown, formData: FormData) {
