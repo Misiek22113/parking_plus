@@ -1,6 +1,7 @@
 'use client';
 
 import { logout } from '@/app/actions';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -39,7 +40,7 @@ export default function AccountInfo() {
         <p className="text-lg">Your account balance</p>
         <p className="py-2 text-4xl font-bold">100 PLN</p>
         <Separator className="my-4" />
-        <p className="text-lg">Your account history</p>
+        <p className="text-lg">Your reservations history</p>
         <ScrollArea className="h-full">
           <Table>
             <TableCaption>A list of your recent reservations.</TableCaption>
@@ -49,6 +50,7 @@ export default function AccountInfo() {
                 <TableHead>Spot</TableHead>
                 <TableHead>Car license</TableHead>
                 <TableHead>Time spent</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
               </TableRow>
             </TableHeader>
@@ -59,6 +61,11 @@ export default function AccountInfo() {
                   <TableCell>17</TableCell>
                   <TableCell>CT2180X</TableCell>
                   <TableCell>1h 37min</TableCell>
+                  <TableCell>
+                    <Badge variant={index === 0 ? 'default' : 'outline'}>
+                      {index === 0 ? 'Active' : 'Paid'}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right">$250.00</TableCell>
                 </TableRow>
               ))}
