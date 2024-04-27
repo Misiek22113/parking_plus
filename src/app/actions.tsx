@@ -123,10 +123,12 @@ export async function cancelParkingSpace(
 }
 
 export async function addCar(currentState: unknown, formData: FormData) {
+  console.log(formData.getAll('addedCar'));
   console.info('Add car function running');
 }
 
 export async function removeCar(currentState: unknown, formData: FormData) {
+  console.log(formData.getAll('removedCar'));
   console.info('Remove car function running');
 }
 

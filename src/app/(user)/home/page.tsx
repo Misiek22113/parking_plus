@@ -1,7 +1,7 @@
-import ParkingPlace from './_components/parking-place/AccountPlace';
+import ParkingPlace from './_components/parking-place/ParkingPlace';
 import AccountFunds from './_components/account-funds/AccountFunds';
 import AccountInfo from './_components/account-info/AccountInfo';
-import AccountCars from './_components/account_cars/page';
+import AccountCars from './_components/account_cars/AccountCars';
 
 export default function Home() {
   return (

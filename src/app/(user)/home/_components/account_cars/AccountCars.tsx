@@ -1,3 +1,6 @@
+'use client';
+
+import { addCar, removeCar } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,8 +21,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { useFormState, useFormStatus } from 'react-dom';
 
 export default function AccountCars() {
+  const [errorMessageAdd, dispatchAdd] = useFormState(addCar, undefined);
+  const [errorMessageRemove, dispatchRemove] = useFormState(
+    removeCar,
+    undefined
+  );
+
   return (
     <Card title="Manage cars">
       <CardHeader>
@@ -37,9 +47,9 @@ export default function AccountCars() {
             <CardDescription className="pb-4">
               Input your car&apos;s license plate to add it to your account.
             </CardDescription>
-            <form>
-              <Input placeholder="Car license plate" />
-              <Button className="mt-4">Add</Button>
+            <form action={dispatchAdd}>
+              <Input placeholder="Car license plate" name="addedCar" />
+              <AddButton />
             </form>
           </div>
           <Separator className="col-span-2 mx-4" orientation="vertical" />
@@ -48,8 +58,8 @@ export default function AccountCars() {
             <CardDescription className="pb-4">
               Select the car you want to remove from your account.
             </CardDescription>
-            <form>
-              <Select>
+            <form action={dispatchRemove}>
+              <Select name="removedCar">
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select a car" />
                 </SelectTrigger>
@@ -64,10 +74,8 @@ export default function AccountCars() {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+              <RemoveButton />
             </form>
-            <Button className="mt-4" variant="destructive">
-              Remove
-            </Button>
           </div>
         </div>
       </CardContent>
@@ -75,3 +83,46 @@ export default function AccountCars() {
     </Card>
   );
 }
+
+const AddButton = () => {
+  const { pending } = useFormStatus();
+
+  const handleClick = (event: any) => {
+    if (pending) {
+      event.preventDefault();
+    }
+  };
+
+  return (
+    <Button
+      aria-disabled={pending}
+      type="submit"
+      onClick={handleClick}
+      className="mt-4"
+    >
+      Add
+    </Button>
+  );
+};
+
+const RemoveButton = () => {
+  const { pending } = useFormStatus();
+
+  const handleClick = (event: any) => {
+    if (pending) {
+      event.preventDefault();
+    }
+  };
+
+  return (
+    <Button
+      aria-disabled={pending}
+      type="submit"
+      onClick={handleClick}
+      className="mt-4"
+      variant="destructive"
+    >
+      Remove
+    </Button>
+  );
+};
