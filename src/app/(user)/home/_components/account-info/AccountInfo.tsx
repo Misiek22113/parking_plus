@@ -1,5 +1,4 @@
 'use client';
-
 import { logout } from '@/app/actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,14 +32,14 @@ export default function AccountInfo() {
         <CardDescription>
           All of your account information is stored here. You can see your ID,
           balance and other information.
-          <p className="pt-2 text-lg">Your account ID: 123456</p>
         </CardDescription>
+        <p className="pt-2 text-lg">Your account ID: 123456</p>
       </CardHeader>
       <CardContent className="mt-4 h-1/2">
-        <p className="text-lg">Your account balance</p>
-        <p className="py-2 text-4xl font-bold">100 PLN</p>
+        <div className="text-lg">Your account balance</div>
+        <div className="dy-2 text-4xl font-bold">100 PLN</div>
         <Separator className="my-4" />
-        <p className="text-lg">Your reservations history</p>
+        <div className="text-lg">Your reservations history</div>
         <ScrollArea className="h-full">
           <Table>
             <TableCaption>A list of your recent reservations.</TableCaption>
@@ -73,7 +72,7 @@ export default function AccountInfo() {
           </Table>
         </ScrollArea>
         <Separator className="my-4" />
-        <p className="text-lg">Account settings</p>
+        <div className="text-lg">Account settings</div>
         <form action={dispatchLogout}>
           <LogoutButton />
         </form>
