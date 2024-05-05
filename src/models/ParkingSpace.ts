@@ -1,3 +1,4 @@
+import { parkingSpaceStatus, parkingSpaceStatusEnum } from '@/constants/enumConstants';
 import mongoose, { InferSchemaType } from 'mongoose';
 
 const parkingSpaceSchema = new mongoose.Schema({
@@ -7,9 +8,9 @@ const parkingSpaceSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['free', 'occupied'] as const,
+    enum: parkingSpaceStatus,
     required: true,
-    default: 'free',
+    default: parkingSpaceStatusEnum.free,
   },
 });
 

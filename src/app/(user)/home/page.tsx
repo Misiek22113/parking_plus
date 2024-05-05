@@ -11,6 +11,7 @@ import { FetchUser } from '@/models/User';
 import { FetchCar } from '@/models/Car';
 import { ParkingActionsContext } from '@/context/ParkingActionsContext';
 import { FetchParkingAction } from '@/models/ParkingActions';
+import { parkingActionsStatusEnum } from '@/constants/enumConstants';
 
 export default function Home() {
   const [carsList, setCarsList] = useState<FetchCar[]>([]);
@@ -18,7 +19,7 @@ export default function Home() {
   const [parkingActions, setParkingActions] = useState<FetchParkingAction[]>(
     []
   );
-  const [hasPendingPayments, setHasPendingPayments] = useState(false);
+  const [hasPendingPayments, setHasPendingPayments] = useState<boolean>();
 
   useEffect(() => {
     getCars().then((cars) => setCarsList(cars));
@@ -26,7 +27,9 @@ export default function Home() {
     getUserParkingActions().then((actions) => {
       setParkingActions(actions);
       setHasPendingPayments(
-        actions.some((action) => action.status === 'pending')
+        actions.some(
+          (action) => action.status === parkingActionsStatusEnum.pending
+        )
       );
     });
   }, [setCarsList, setAccountInfo]);
@@ -46,7 +49,7 @@ export default function Home() {
                 </div>
               ) : (
                 <>
-                  {carsList.length > 0 && (
+                  {hasPendingPayments === false && (
                     <>
                       <ParkingPlace
                         setHasPendingPayments={setHasPendingPayments}

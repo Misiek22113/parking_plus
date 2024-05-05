@@ -3,6 +3,7 @@ import ParkingSlotCount from '../ParkingSlotCount/ParkingSlotCount';
 import Image from 'next/image';
 import BAR_CHART_ICON from '../../assets/icons/bar-chart-big.svg';
 import { ParkingSpacesContext } from '@/context/ParkingSpacesContext';
+import { parkingSpaceStatusEnum } from '@/constants/enumConstants';
 
 const AvailabilityData = () => {
   const { parkingSpaces } = useContext(ParkingSpacesContext);
@@ -30,13 +31,17 @@ const AvailabilityData = () => {
       <div className="flex flex-col gap-4 bg-[#374151] px-5 py-5">
         <ParkingSlotCount
           parkingSlotCount={
-            parkingSpaces.filter((space) => space.status === 'free').length
+            parkingSpaces.filter(
+              (space) => space.status === parkingSpaceStatusEnum.free
+            ).length
           }
           isAvailableSlotCount={true}
         />
         <ParkingSlotCount
           parkingSlotCount={
-            parkingSpaces.filter((space) => space.status === 'occupied').length
+            parkingSpaces.filter(
+              (space) => space.status === parkingSpaceStatusEnum.occupied
+            ).length
           }
           isAvailableSlotCount={false}
         />

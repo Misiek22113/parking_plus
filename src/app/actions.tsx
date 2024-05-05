@@ -18,6 +18,11 @@ import {
   ParkingSpaceModel,
 } from '@/models/ParkingSpace';
 import { parkingSize } from '@/constants/databaseConstants';
+import {
+  parkingActionsStatusEnum,
+  parkingSpaceStatusEnum,
+  userRoleEnum,
+} from '@/constants/enumConstants';
 
 async function initializeDatabase() {
   const mongoDbUrl = process.env.MONGODB_URL;
@@ -42,7 +47,7 @@ async function initializeDatabase() {
     await UserModel.create<User>({
       username: adminCredentials.username,
       password: adminCredentials.password,
-      userRole: 'admin',
+      userRole: userRoleEnum.admin,
     });
   }
   mongoose.connection.close();
@@ -137,7 +142,7 @@ export async function register(currentState: unknown, formData: FormData) {
     await UserModel.create({
       username,
       password,
-      userRole: 'user',
+      userRole: userRoleEnum.user,
     });
 
     console.info('User created');
@@ -172,7 +177,6 @@ export async function orderParkingSpace(
       throw new AppError('MongoDB URL is not defined');
     }
     const carName = formData.get('selectedCar');
-    console.log(formData);
 
     if (!carName) {
       throw new AppError('Car name is empty');
@@ -201,7 +205,7 @@ export async function orderParkingSpace(
     }
 
     const freeParkingSpaces = await ParkingSpaceModel.find<ParkingSpace>({
-      status: 'free',
+      status: parkingSpaceStatusEnum.free,
     });
 
     if (freeParkingSpaces.length === 0) {
@@ -211,21 +215,23 @@ export async function orderParkingSpace(
     const randomFreeParkingSpace =
       freeParkingSpaces[Math.floor(Math.random() * freeParkingSpaces.length)];
 
-    await ParkingSpaceModel.updateOne(
-      {
-        _id: randomFreeParkingSpace._id,
-      },
-      {
-        status: 'occupied',
-      }
-    );
     const parkingSpaceAction = await ParkingActionsModel.create<ParkingActions>(
       {
         spaceNumber: randomFreeParkingSpace.spaceNumber,
         parkingSpaceId: randomFreeParkingSpace._id,
         carId: foundCar._id,
-        status: 'pending',
+        status: parkingActionsStatusEnum.pending,
         parkTime: new Date(),
+        leaveTime: null,
+      }
+    );
+
+    await ParkingSpaceModel.updateOne(
+      {
+        _id: randomFreeParkingSpace._id,
+      },
+      {
+        status: parkingSpaceStatusEnum.occupied,
       }
     );
 
@@ -279,7 +285,7 @@ export async function addCar(
     });
 
     if (foundCar) {
-      throw new AppError('Car with this license plate is claimed');
+      throw new AppError('Car with this license plate is already claimed');
     }
 
     const foundUser = await UserModel.findOne<User>({
@@ -344,7 +350,7 @@ export async function removeCar(
 
     const pendingPayments = await ParkingActionsModel.find<ParkingActions>({
       carId: removedCarId,
-      status: 'pending',
+      status: parkingActionsStatusEnum.pending,
     });
     if (pendingPayments.length > 0) {
       throw new AppError('Car has pending payments');

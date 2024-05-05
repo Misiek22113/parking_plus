@@ -1,3 +1,4 @@
+import { parkingActionsStatus } from '@/constants/enumConstants';
 import mongoose, { InferSchemaType } from 'mongoose';
 
 const parkingActionsSchema = new mongoose.Schema({
@@ -17,7 +18,7 @@ const parkingActionsSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'payed'] as const,
+    enum: parkingActionsStatus,
     required: true,
   },
   parkTime: {
@@ -25,8 +26,7 @@ const parkingActionsSchema = new mongoose.Schema({
     required: true,
   },
   leaveTime: {
-    type: Date || null,
-    required: true,
+    type: Date,
     default: null,
   },
 });

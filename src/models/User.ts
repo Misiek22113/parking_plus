@@ -1,3 +1,4 @@
+import { userRole, userRoleEnum } from '@/constants/enumConstants';
 import mongoose, { InferSchemaType } from 'mongoose';
 
 const userSchema = new mongoose.Schema({
@@ -18,8 +19,8 @@ const userSchema = new mongoose.Schema({
   },
   userRole: {
     type: String,
-    enum: ['user', 'admin'] as const,
-    default: 'user',
+    enum: userRole,
+    default: userRoleEnum.user,
   },
 });
 

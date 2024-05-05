@@ -20,6 +20,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { parkingActionsStatusEnum } from '@/constants/enumConstants';
 import { AccountInfoContext } from '@/context/AccountInfoContext';
 import { ParkingActionsContext } from '@/context/ParkingActionsContext';
 import { useContext } from 'react';
@@ -43,6 +44,8 @@ export default function AccountInfo() {
     const minutes = Math.floor((differenceMs % (1000 * 60 * 60)) / (1000 * 60));
     return hours * 2;
   };
+
+  console.log(parkingActions);
 
   return (
     <Card title="Account info" className="row-span-3 h-full overflow-hidden">
@@ -88,7 +91,8 @@ export default function AccountInfo() {
                   <TableCell>
                     <Badge
                       variant={
-                        parkingAction.status === 'pending'
+                        parkingAction.status ===
+                        parkingActionsStatusEnum.pending
                           ? 'default'
                           : 'outline'
                       }

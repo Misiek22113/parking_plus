@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { getUserInfoFromCookie } from './lib/utils';
+import { userRoleEnum } from './constants/enumConstants';
 
 export async function middleware(req: NextRequest) {
   const cookie = req.cookies.get('session')?.value;
@@ -15,9 +16,9 @@ export async function middleware(req: NextRequest) {
     try {
       const { userRole } = await getUserInfoFromCookie(cookie);
       switch (userRole) {
-        case 'admin':
+        case userRoleEnum.admin:
           return NextResponse.redirect(new URL('/dashboard', req.url));
-        case 'user':
+        case userRoleEnum.user:
           return NextResponse.redirect(new URL('/home', req.url));
         default:
           return NextResponse.redirect(new URL('/account/login', req.url));
@@ -30,9 +31,9 @@ export async function middleware(req: NextRequest) {
     try {
       const { userRole } = await getUserInfoFromCookie(cookie);
       switch (userRole) {
-        case 'admin':
+        case userRoleEnum.admin:
           return NextResponse.next();
-        case 'user':
+        case userRoleEnum.user:
           return NextResponse.redirect(new URL('/home', req.url));
         default:
           return NextResponse.redirect(new URL('/account/login', req.url));
@@ -45,9 +46,9 @@ export async function middleware(req: NextRequest) {
     try {
       const { userRole } = await getUserInfoFromCookie(cookie);
       switch (userRole) {
-        case 'admin':
+        case userRoleEnum.admin:
           return NextResponse.redirect(new URL('/dashboard', req.url));
-        case 'user':
+        case userRoleEnum.user:
           return NextResponse.next();
         default:
           return NextResponse.redirect(new URL('/account/login', req.url));
@@ -59,9 +60,9 @@ export async function middleware(req: NextRequest) {
     try {
       const { userRole } = await getUserInfoFromCookie(cookie);
       switch (userRole) {
-        case 'admin':
+        case userRoleEnum.admin:
           return NextResponse.redirect(new URL('/dashboard', req.url));
-        case 'user':
+        case userRoleEnum.user:
           return NextResponse.redirect(new URL('/home', req.url));
         default:
           return NextResponse.redirect(new URL('/account/login', req.url));
