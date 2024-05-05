@@ -27,3 +27,8 @@ type UserSchemaType = InferSchemaType<typeof userSchema>;
 export interface User extends UserSchemaType, mongoose.Document {}
 export const UserModel =
   mongoose.models.User || mongoose.model<User>('User', userSchema);
+
+export interface FetchUser {
+  _id: string;
+  credits: number;
+}

@@ -2,9 +2,11 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import mongoose from 'mongoose';
-import { User, UserModel } from '@/models/User';
+import { FetchUser, User, UserModel } from '@/models/User';
 import { AppError, encrypt, getUserInfoFromCookie } from '@/lib/utils';
-import { Car, CarModel } from '@/models/Car';
+import { Car, CarModel, FetchCar } from '@/models/Car';
+import { adminCredentials } from '@/constants/accountConstants';
+import CustomResponse from '@/models/Response';
 
 export async function login(currentState: unknown, formData: FormData) {
   console.log('Login function running');
@@ -90,7 +92,15 @@ export async function register(currentState: unknown, formData: FormData) {
       throw new AppError('User already exists');
     }
 
-    await UserModel.create({ username, password, userRole: 'user' });
+    await UserModel.create({
+      username,
+      password,
+      userRole:
+        username === adminCredentials.username &&
+        password === adminCredentials.password
+          ? 'admin'
+          : 'user',
+    });
 
     console.info('User created');
   } catch (AppError: any) {
@@ -110,20 +120,16 @@ export async function logout() {
 export async function orderParkingSpace(
   currentState: unknown,
   formData: FormData
-) {
+): Promise<CustomResponse> {
   console.log(formData.getAll('selectedCar'));
   console.info('Order parking space function running');
+  return { isSuccessful: true, message: 'Parking space ordered', data: null };
 }
 
-export async function cancelParkingSpace(
+export async function addCar(
   currentState: unknown,
   formData: FormData
-) {
-  console.log(formData.getAll('selectedReservation'));
-  console.info('Cancel parking space function running');
-}
-
-export async function addCar(currentState: unknown, formData: FormData) {
+): Promise<CustomResponse> {
   const mongoDbUrl = process.env.MONGODB_URL;
   const cookieStore = cookies();
 
@@ -141,6 +147,15 @@ export async function addCar(currentState: unknown, formData: FormData) {
     }
 
     await mongoose.connect(mongoDbUrl);
+
+    const foundCar = await CarModel.findOne<Car>({
+      registrationPlate: addedCarName,
+    });
+
+    if (foundCar) {
+      throw new AppError('Car with this license plate is claimed');
+    }
+
     const foundUser = await UserModel.findOne<User>({
       username,
     });
@@ -151,22 +166,29 @@ export async function addCar(currentState: unknown, formData: FormData) {
 
     const userId = foundUser._id;
 
-    await CarModel.create({
+    const car: Car = await CarModel.create<Car>({
       ownerId: userId,
       registrationPlate: addedCarName,
     });
 
     console.info('Car added');
+    return {
+      isSuccessful: true,
+      message: 'Car added',
+      data: { _id: car._id, registrationPlate: car.registrationPlate },
+    };
   } catch (AppError: any) {
     console.error(AppError.message);
-    return AppError.message;
+    return { isSuccessful: false, message: AppError.message, data: null };
   } finally {
     mongoose.connection.close();
   }
-  return redirect('/');
 }
 
-export async function removeCar(currentState: unknown, formData: FormData) {
+export async function removeCar(
+  currentState: unknown,
+  formData: FormData
+): Promise<CustomResponse> {
   const mongoDbUrl = process.env.MONGODB_URL;
   const cookieStore = cookies();
 
@@ -200,21 +222,73 @@ export async function removeCar(currentState: unknown, formData: FormData) {
     });
 
     console.info('Car removed');
+    return {
+      isSuccessful: true,
+      message: 'Car removed',
+      data: { _id: removedCarId },
+    };
   } catch (AppError: any) {
     console.error(AppError.message);
-    return AppError.message;
+    return { isSuccessful: false, message: AppError.message, data: null };
   } finally {
     mongoose.connection.close();
   }
-  return redirect('/');
 }
 
-export async function addFunds(currentState: unknown, formData: FormData) {
-  console.log(formData.getAll('moneyAmount'));
-  console.info('Add funds function running');
+export async function addFunds(
+  currentState: unknown,
+  formData: FormData
+): Promise<CustomResponse> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+  const cookieStore = cookies();
+
+  const token = cookieStore.get('session')?.value;
+  const { username } = await getUserInfoFromCookie(token);
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+
+    const amount = formData.get('moneyAmount');
+    if (!amount || parseFloat(amount as string) <= 0) {
+      throw new AppError('Amount value is invalid');
+    }
+
+    await mongoose.connect(mongoDbUrl);
+    const foundUser = await UserModel.findOne<User>({
+      username,
+    });
+
+    if (!foundUser) {
+      throw new AppError('User not found');
+    }
+
+    await UserModel.updateOne(
+      {
+        username,
+      },
+      {
+        $inc: {
+          credits: parseFloat(amount as string),
+        },
+      }
+    );
+
+    console.info('Funds added');
+    return {
+      isSuccessful: true,
+      message: 'Funds added',
+      data: { credits: parseFloat(amount as string) },
+    };
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return { isSuccessful: false, message: AppError.message, data: null };
+  } finally {
+    mongoose.connection.close();
+  }
 }
 
-export default async function getCars(): Promise<Car[]> {
+export async function getCars(): Promise<FetchCar[]> {
   const mongoDbUrl = process.env.MONGODB_URL;
   const cookieStore = cookies();
 
@@ -239,7 +313,39 @@ export default async function getCars(): Promise<Car[]> {
       ownerId: userId,
     });
 
-    return cars;
+    return cars.map((car) => ({
+      _id: car._id,
+      registrationPlate: car.registrationPlate,
+    }));
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return AppError.message;
+  } finally {
+    mongoose.connection.close();
+  }
+}
+
+export async function getUserCredits(): Promise<FetchUser> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+  const cookieStore = cookies();
+
+  const token = cookieStore.get('session')?.value;
+  const { username } = await getUserInfoFromCookie(token);
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    await mongoose.connect(mongoDbUrl);
+    const userInfo = await UserModel.findOne<User>({
+      username: username,
+    });
+
+    if (!userInfo) {
+      throw new AppError('User not found');
+    }
+
+    return { _id: userInfo._id, credits: userInfo.credits };
   } catch (AppError: any) {
     console.error(AppError.message);
     return AppError.message;

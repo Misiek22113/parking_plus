@@ -1,6 +1,6 @@
 'use client';
 
-import { addCar, removeCar } from '@/app/actions';
+import { addCar, getCars, removeCar } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -21,15 +21,37 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { Car } from '@/models/Car';
+import { CarsListContext } from '@/context/CarsListContext';
+import { useContext, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
+import { useToast } from '@/components/ui/use-toast';
 
-export default function AccountCars({ carList = [] }: { carList?: Car[] }) {
-  const [errorMessageAdd, dispatchAdd] = useFormState(addCar, undefined);
-  const [errorMessageRemove, dispatchRemove] = useFormState(
-    removeCar,
-    undefined
-  );
+export default function AccountCars() {
+  const { toast } = useToast();
+  const { carsList, setCarsList } = useContext(CarsListContext);
+  const [errorAdd, dispatchAdd] = useFormState(addCar, undefined);
+  const [errorRemove, dispatchRemove] = useFormState(removeCar, undefined);
+
+  useEffect(() => {
+    if (errorAdd?.isSuccessful || errorRemove?.isSuccessful) {
+      getCars().then((cars) => setCarsList(cars));
+    }
+    if (errorAdd && !errorAdd.isSuccessful) {
+      console.log(errorAdd?.message);
+      toast({
+        variant: 'destructive',
+        title: 'Failed to add car',
+        description: errorAdd?.message,
+      });
+    }
+    if (errorRemove && !errorRemove.isSuccessful) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to remove car',
+        description: errorRemove?.message,
+      });
+    }
+  }, [errorAdd, errorRemove, setCarsList]);
 
   return (
     <Card title="Manage cars">
@@ -67,11 +89,12 @@ export default function AccountCars({ carList = [] }: { carList?: Car[] }) {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Your cars</SelectLabel>
-                    {carList.map((car, index) => (
-                      <SelectItem key={index} value={`${car._id}`}>
-                        {car.registrationPlate}
-                      </SelectItem>
-                    ))}
+                    {Array.isArray(carsList) &&
+                      carsList.map((car, index) => (
+                        <SelectItem key={index} value={`${car._id}`}>
+                          {car.registrationPlate}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>

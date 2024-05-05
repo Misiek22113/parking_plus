@@ -15,7 +15,7 @@ export default function AccountFunds() {
       <CardHeader>
         <CardTitle>Add funds to your account</CardTitle>
         <CardDescription>
-          Your fundings are used to pay for parking spots. You can add funds to
+          Your balance is used to pay for parking spots. You can add funds to
           the account here.
         </CardDescription>
       </CardHeader>

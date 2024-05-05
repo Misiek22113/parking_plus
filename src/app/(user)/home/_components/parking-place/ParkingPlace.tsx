@@ -1,6 +1,5 @@
 'use client';
-
-import { orderParkingSpace, cancelParkingSpace } from '@/app/actions';
+import { orderParkingSpace } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -8,7 +7,6 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from '@/components/ui/card';
 import {
   Select,
@@ -20,20 +18,31 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { CarsListContext } from '@/context/CarsListContext';
+import { useContext, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
+import { useToast } from '@/components/ui/use-toast';
 
 export default function ParkingPlace() {
-  const [errorMessageOrder, dispatchOrder] = useFormState(
+  const { toast } = useToast();
+  const { carsList } = useContext(CarsListContext);
+  const [errorOrder, dispatchOrder] = useFormState(
     orderParkingSpace,
     undefined
   );
-  const [errorMessageCancel, dispatchCancel] = useFormState(
-    cancelParkingSpace,
-    undefined
-  );
+
+  useEffect(() => {
+    if (errorOrder && !errorOrder.isSuccessful) {
+      toast({
+        variant: 'destructive',
+        title: 'Failed to order parking space',
+        description: errorOrder?.message,
+      });
+    }
+  }, [errorOrder]);
 
   return (
-    <Card title="Parking places">
+    <Card title="Parking places" className="relative">
       <CardHeader>
         <CardTitle>Order parking place</CardTitle>
         <CardDescription>
@@ -45,11 +54,11 @@ export default function ParkingPlace() {
       </CardHeader>
       <CardContent>
         <Separator className="my-4" />
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-5">
+        <div className="grid grid-cols-1 gap-4">
+          <div className="col-span-1">
             <p className="text-lg">Order place for your car</p>
             <CardDescription className="pb-4">
-              Select the parking lot you want to park in:
+              Select the car you want to park:
             </CardDescription>
             <form action={dispatchOrder}>
               <Select name="selectedCar">
@@ -59,41 +68,16 @@ export default function ParkingPlace() {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Your cars</SelectLabel>
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <SelectItem key={index} value={`car-${index}`}>
-                        Car {index}
-                      </SelectItem>
-                    ))}
+                    {Array.isArray(carsList) &&
+                      carsList.map((car, index) => (
+                        <SelectItem key={index} value={`${car._id}`}>
+                          {car.registrationPlate}
+                        </SelectItem>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
               <OrderButton />
-            </form>
-          </div>
-          <Separator className="col-span-2 mx-4" orientation="vertical" />
-          <div className="col-span-5">
-            <p className="text-lg">Cancel the reservation</p>
-            <CardDescription className="pb-4">
-              Use this only if your car is not in the parking, either way
-              parking fee will be charged.
-            </CardDescription>
-            <form action={dispatchCancel}>
-              <Select name="selectedReservation">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select a reservation" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Your current reservations</SelectLabel>
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <SelectItem key={index} value={`reservation-${index}`}>
-                        Reservation {index}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              <CancelButton />
             </form>
           </div>
         </div>

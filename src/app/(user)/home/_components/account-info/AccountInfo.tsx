@@ -20,9 +20,12 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { AccountInfoContext } from '@/context/AccountInfoContext';
+import { useContext } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 
 export default function AccountInfo() {
+  const { accountInfo } = useContext(AccountInfoContext);
   const [errorMessageLogout, dispatchLogout] = useFormState(logout, undefined);
 
   return (
@@ -30,14 +33,15 @@ export default function AccountInfo() {
       <CardHeader className="h-min bg-muted">
         <CardTitle>Your account information</CardTitle>
         <CardDescription>
-          All of your account information is stored here. You can see your ID,
+          All of your account information is stored here. You can see your
           balance and other information.
         </CardDescription>
-        <p className="pt-2 text-lg">Your account ID: 123456</p>
       </CardHeader>
       <CardContent className="mt-4 h-1/2">
         <div className="text-lg">Your account balance</div>
-        <div className="dy-2 text-4xl font-bold">100 PLN</div>
+        <div className="dy-2 text-4xl font-bold">
+          {accountInfo && accountInfo.credits} PLN
+        </div>
         <Separator className="my-4" />
         <div className="text-lg">Your reservations history</div>
         <ScrollArea className="h-full">
