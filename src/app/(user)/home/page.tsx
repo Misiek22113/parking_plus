@@ -10,8 +10,8 @@ import { AccountInfoContext } from '@/context/AccountInfoContext';
 import { FetchUser } from '@/models/User';
 import { FetchCar } from '@/models/Car';
 import { ParkingActionsContext } from '@/context/ParkingActionsContext';
-import { FetchParkingAction } from '@/models/ParkingActions';
-import { parkingActionsStatusEnum } from '@/constants/enumConstants';
+import { FetchParkingAction } from '@/models/ParkingAction';
+import { parkingActionStatusEnum } from '@/constants/enumConstants';
 
 export default function Home() {
   const [carsList, setCarsList] = useState<FetchCar[]>([]);
@@ -28,7 +28,7 @@ export default function Home() {
       setParkingActions(actions);
       setHasPendingPayments(
         actions.some(
-          (action) => action.status === parkingActionsStatusEnum.pending
+          (action) => action.status === parkingActionStatusEnum.pending
         )
       );
     });

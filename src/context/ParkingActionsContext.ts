@@ -1,4 +1,4 @@
-import { FetchParkingAction } from '@/models/ParkingActions';
+import { FetchParkingAction } from '@/models/ParkingAction';
 import { createContext } from 'react';
 
 interface ParkingActionsContext {

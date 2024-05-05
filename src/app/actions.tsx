@@ -9,9 +9,9 @@ import { adminCredentials } from '@/constants/accountConstants';
 import CustomResponse from '@/app/types/Response';
 import {
   FetchParkingAction,
-  ParkingActions,
+  ParkingAction,
   ParkingActionsModel,
-} from '@/models/ParkingActions';
+} from '@/models/ParkingAction';
 import {
   FetchParkingSpace,
   ParkingSpace,
@@ -19,7 +19,7 @@ import {
 } from '@/models/ParkingSpace';
 import { parkingSize } from '@/constants/databaseConstants';
 import {
-  parkingActionsStatusEnum,
+  parkingActionStatusEnum,
   parkingSpaceStatusEnum,
   userRoleEnum,
 } from '@/constants/enumConstants';
@@ -215,16 +215,14 @@ export async function orderParkingSpace(
     const randomFreeParkingSpace =
       freeParkingSpaces[Math.floor(Math.random() * freeParkingSpaces.length)];
 
-    const parkingSpaceAction = await ParkingActionsModel.create<ParkingActions>(
-      {
-        spaceNumber: randomFreeParkingSpace.spaceNumber,
-        parkingSpaceId: randomFreeParkingSpace._id,
-        carId: foundCar._id,
-        status: parkingActionsStatusEnum.pending,
-        parkTime: new Date(),
-        leaveTime: null,
-      }
-    );
+    const parkingSpaceAction = await ParkingActionsModel.create<ParkingAction>({
+      spaceNumber: randomFreeParkingSpace.spaceNumber,
+      parkingSpaceId: randomFreeParkingSpace._id,
+      carId: foundCar._id,
+      status: parkingActionStatusEnum.pending,
+      parkTime: new Date(),
+      leaveTime: null,
+    });
 
     await ParkingSpaceModel.updateOne(
       {
@@ -348,9 +346,9 @@ export async function removeCar(
 
     const userId = foundUser._id;
 
-    const pendingPayments = await ParkingActionsModel.find<ParkingActions>({
+    const pendingPayments = await ParkingActionsModel.find<ParkingAction>({
       carId: removedCarId,
-      status: parkingActionsStatusEnum.pending,
+      status: parkingActionStatusEnum.pending,
     });
     if (pendingPayments.length > 0) {
       throw new AppError('Car has pending payments');
@@ -523,7 +521,7 @@ export async function getUserParkingActions(): Promise<FetchParkingAction[]> {
     });
     const userCarsIds = userCars.map((car) => car._id);
 
-    const parkingActions = await ParkingActionsModel.find<ParkingActions>({
+    const parkingActions = await ParkingActionsModel.find<ParkingAction>({
       carId: { $in: userCarsIds },
     })
       .populate({ path: 'parkingSpaceId', model: 'ParkingSpace' })

@@ -20,7 +20,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { parkingActionsStatusEnum } from '@/constants/enumConstants';
+import { parkingActionStatusEnum } from '@/constants/enumConstants';
 import { AccountInfoContext } from '@/context/AccountInfoContext';
 import { ParkingActionsContext } from '@/context/ParkingActionsContext';
 import { useContext } from 'react';
@@ -91,8 +91,7 @@ export default function AccountInfo() {
                   <TableCell>
                     <Badge
                       variant={
-                        parkingAction.status ===
-                        parkingActionsStatusEnum.pending
+                        parkingAction.status === parkingActionStatusEnum.pending
                           ? 'default'
                           : 'outline'
                       }

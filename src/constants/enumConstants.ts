@@ -1,5 +1,5 @@
-export const parkingActionsStatus = ['pending', 'payed'];
-export const parkingActionsStatusEnum = {
+export const parkingActionStatus = ['pending', 'payed'];
+export const parkingActionStatusEnum = {
   pending: 'pending',
   payed: 'payed',
 };

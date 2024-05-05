@@ -1,11 +1,7 @@
-import { parkingActionsStatus } from '@/constants/enumConstants';
+import { parkingActionStatus } from '@/constants/enumConstants';
 import mongoose, { InferSchemaType } from 'mongoose';
 
-const parkingActionsSchema = new mongoose.Schema({
-  spaceNumber: {
-    type: Number,
-    required: true,
-  },
+const parkingActionSchema = new mongoose.Schema({
   parkingSpaceId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
@@ -18,7 +14,7 @@ const parkingActionsSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: parkingActionsStatus,
+    enum: parkingActionStatus,
     required: true,
   },
   parkTime: {
@@ -31,13 +27,13 @@ const parkingActionsSchema = new mongoose.Schema({
   },
 });
 
-type ParkingActionsSchemaType = InferSchemaType<typeof parkingActionsSchema>;
-export interface ParkingActions
-  extends ParkingActionsSchemaType,
+type ParkingActionSchemaType = InferSchemaType<typeof parkingActionSchema>;
+export interface ParkingAction
+  extends ParkingActionSchemaType,
     mongoose.Document {}
 export const ParkingActionsModel =
-  mongoose.models.ParkingActions ||
-  mongoose.model<ParkingActions>('ParkingActions', parkingActionsSchema);
+  mongoose.models.ParkingAction ||
+  mongoose.model<ParkingAction>('ParkingAction', parkingActionSchema);
 
 export interface FetchParkingAction {
   _id: string;
