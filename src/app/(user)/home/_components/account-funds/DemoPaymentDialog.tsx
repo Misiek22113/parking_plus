@@ -24,16 +24,21 @@ export default function DemoPaymentDialog() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (errorAdd?.isSuccessful) {
+    if (errorAdd?.isSuccessful && errorAdd?.data) {
       setAccountInfo({
         ...accountInfo,
         credits: accountInfo.credits + errorAdd.data.credits,
+      });
+      toast({
+        variant: 'success',
+        title: 'Success',
+        description: 'Funds added successfully.',
       });
     }
     if (errorAdd && !errorAdd.isSuccessful) {
       toast({
         variant: 'destructive',
-        title: 'Failed to add funds',
+        title: 'Failed to add funds.',
         description: errorAdd?.message,
       });
     }

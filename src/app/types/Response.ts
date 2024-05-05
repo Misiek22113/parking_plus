@@ -1,7 +1,7 @@
-type CustomResponse = {
+type CustomResponse<T> = {
   isSuccessful: boolean;
   message: string;
-  data: any;
+  data: T;
 };
 
 export default CustomResponse;

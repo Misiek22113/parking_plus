@@ -22,10 +22,18 @@ import { CarsListContext } from '@/context/CarsListContext';
 import { useContext, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { useToast } from '@/components/ui/use-toast';
+import { ParkingActionsContext } from '@/context/ParkingActionsContext';
 
-export default function ParkingPlace() {
+export default function ParkingPlace({
+  setHasPendingPayments,
+}: {
+  setHasPendingPayments: (value: boolean) => void;
+}) {
   const { toast } = useToast();
   const { carsList } = useContext(CarsListContext);
+  const { parkingActions, setParkingActions } = useContext(
+    ParkingActionsContext
+  );
   const [errorOrder, dispatchOrder] = useFormState(
     orderParkingSpace,
     undefined
@@ -35,8 +43,17 @@ export default function ParkingPlace() {
     if (errorOrder && !errorOrder.isSuccessful) {
       toast({
         variant: 'destructive',
-        title: 'Failed to order parking space',
+        title: 'Failed to order parking space.',
         description: errorOrder?.message,
+      });
+    }
+    if (errorOrder && errorOrder.isSuccessful && errorOrder.data) {
+      setParkingActions([...parkingActions, errorOrder.data]);
+      setHasPendingPayments(true);
+      toast({
+        variant: 'success',
+        title: 'Success',
+        description: 'Parking space ordered successfully.',
       });
     }
   }, [errorOrder]);

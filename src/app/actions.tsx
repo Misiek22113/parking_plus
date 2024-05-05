@@ -6,7 +6,47 @@ import { FetchUser, User, UserModel } from '@/models/User';
 import { AppError, encrypt, getUserInfoFromCookie } from '@/lib/utils';
 import { Car, CarModel, FetchCar } from '@/models/Car';
 import { adminCredentials } from '@/constants/accountConstants';
-import CustomResponse from '@/models/Response';
+import CustomResponse from '@/app/types/Response';
+import {
+  FetchParkingAction,
+  ParkingActions,
+  ParkingActionsModel,
+} from '@/models/ParkingActions';
+import {
+  FetchParkingSpace,
+  ParkingSpace,
+  ParkingSpaceModel,
+} from '@/models/ParkingSpace';
+import { parkingSize } from '@/constants/databaseConstants';
+
+async function initializeDatabase() {
+  const mongoDbUrl = process.env.MONGODB_URL;
+  if (!mongoDbUrl) {
+    throw new AppError('MongoDB URL is not defined');
+  }
+  await mongoose.connect(mongoDbUrl);
+
+  const parkingSpaces = await ParkingSpaceModel.find<ParkingSpace>({});
+  if (parkingSpaces.length !== parkingSize) {
+    await ParkingSpaceModel.deleteMany({});
+    for (let i = 0; i < parkingSize; i++) {
+      await ParkingSpaceModel.create<ParkingSpace>({
+        spaceNumber: i + 1,
+      });
+    }
+  }
+  const adminUser = await UserModel.findOne<User>({
+    username: adminCredentials.username,
+  });
+  if (!adminUser) {
+    await UserModel.create<User>({
+      username: adminCredentials.username,
+      password: adminCredentials.password,
+      userRole: 'admin',
+    });
+  }
+  mongoose.connection.close();
+}
 
 export async function login(currentState: unknown, formData: FormData) {
   console.log('Login function running');
@@ -59,6 +99,8 @@ export async function login(currentState: unknown, formData: FormData) {
 }
 
 export async function register(currentState: unknown, formData: FormData) {
+  await initializeDatabase();
+
   console.info('Register function running');
   const mongoDbUrl = process.env.MONGODB_URL;
 
@@ -95,11 +137,7 @@ export async function register(currentState: unknown, formData: FormData) {
     await UserModel.create({
       username,
       password,
-      userRole:
-        username === adminCredentials.username &&
-        password === adminCredentials.password
-          ? 'admin'
-          : 'user',
+      userRole: 'user',
     });
 
     console.info('User created');
@@ -120,16 +158,104 @@ export async function logout() {
 export async function orderParkingSpace(
   currentState: unknown,
   formData: FormData
-): Promise<CustomResponse> {
-  console.log(formData.getAll('selectedCar'));
+): Promise<CustomResponse<FetchParkingAction | null>> {
   console.info('Order parking space function running');
-  return { isSuccessful: true, message: 'Parking space ordered', data: null };
+
+  const mongoDbUrl = process.env.MONGODB_URL;
+  const cookieStore = cookies();
+
+  const token = cookieStore.get('session')?.value;
+  const { username } = await getUserInfoFromCookie(token);
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    const carName = formData.get('selectedCar');
+    console.log(formData);
+
+    if (!carName) {
+      throw new AppError('Car name is empty');
+    }
+
+    await mongoose.connect(mongoDbUrl);
+
+    const foundCar = await CarModel.findOne<Car>({
+      _id: carName,
+    });
+
+    if (!foundCar) {
+      throw new AppError('Car not found');
+    }
+
+    const foundUser = await UserModel.findOne<User>({
+      username,
+    });
+
+    if (!foundUser) {
+      throw new AppError('User not found');
+    }
+
+    if (foundCar.ownerId.toString() !== foundUser._id.toString()) {
+      throw new AppError('Car does not belong to you');
+    }
+
+    const freeParkingSpaces = await ParkingSpaceModel.find<ParkingSpace>({
+      status: 'free',
+    });
+
+    if (freeParkingSpaces.length === 0) {
+      throw new AppError('No free parking spaces available');
+    }
+
+    const randomFreeParkingSpace =
+      freeParkingSpaces[Math.floor(Math.random() * freeParkingSpaces.length)];
+
+    await ParkingSpaceModel.updateOne(
+      {
+        _id: randomFreeParkingSpace._id,
+      },
+      {
+        status: 'occupied',
+      }
+    );
+    const parkingSpaceAction = await ParkingActionsModel.create<ParkingActions>(
+      {
+        spaceNumber: randomFreeParkingSpace.spaceNumber,
+        parkingSpaceId: randomFreeParkingSpace._id,
+        carId: foundCar._id,
+        status: 'pending',
+        parkTime: new Date(),
+      }
+    );
+
+    console.info('Parking space ordered');
+    return {
+      isSuccessful: true,
+      message: 'Parking space ordered',
+      data: {
+        _id: parkingSpaceAction._id.toString(),
+        parkingSpaceId: parkingSpaceAction.parkingSpaceId.toString(),
+        parkingSpaceNumber: randomFreeParkingSpace.spaceNumber,
+        carId: parkingSpaceAction.carId.toString(),
+        carRegistrationPlate: foundCar.registrationPlate,
+        status: parkingSpaceAction.status,
+        parkTime: parkingSpaceAction.parkTime,
+        leaveTime: parkingSpaceAction.leaveTime,
+      },
+    };
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return { isSuccessful: false, message: AppError.message, data: null };
+  } finally {
+    mongoose.connection.close();
+  }
 }
 
 export async function addCar(
   currentState: unknown,
   formData: FormData
-): Promise<CustomResponse> {
+): Promise<CustomResponse<FetchCar | null>> {
   const mongoDbUrl = process.env.MONGODB_URL;
   const cookieStore = cookies();
 
@@ -188,7 +314,7 @@ export async function addCar(
 export async function removeCar(
   currentState: unknown,
   formData: FormData
-): Promise<CustomResponse> {
+): Promise<CustomResponse<{ _id: string } | null>> {
   const mongoDbUrl = process.env.MONGODB_URL;
   const cookieStore = cookies();
 
@@ -216,6 +342,18 @@ export async function removeCar(
 
     const userId = foundUser._id;
 
+    const pendingPayments = await ParkingActionsModel.find<ParkingActions>({
+      carId: removedCarId,
+      status: 'pending',
+    });
+    if (pendingPayments.length > 0) {
+      throw new AppError('Car has pending payments');
+    }
+
+    await ParkingActionsModel.deleteMany({
+      carId: removedCarId,
+    });
+
     await CarModel.deleteOne({
       ownerId: userId,
       _id: removedCarId,
@@ -225,7 +363,7 @@ export async function removeCar(
     return {
       isSuccessful: true,
       message: 'Car removed',
-      data: { _id: removedCarId },
+      data: { _id: removedCarId.toString() },
     };
   } catch (AppError: any) {
     console.error(AppError.message);
@@ -238,7 +376,7 @@ export async function removeCar(
 export async function addFunds(
   currentState: unknown,
   formData: FormData
-): Promise<CustomResponse> {
+): Promise<CustomResponse<{ credits: number } | null>> {
   const mongoDbUrl = process.env.MONGODB_URL;
   const cookieStore = cookies();
 
@@ -314,7 +452,7 @@ export async function getCars(): Promise<FetchCar[]> {
     });
 
     return cars.map((car) => ({
-      _id: car._id,
+      _id: car._id.toString(),
       registrationPlate: car.registrationPlate,
     }));
   } catch (AppError: any) {
@@ -345,7 +483,82 @@ export async function getUserCredits(): Promise<FetchUser> {
       throw new AppError('User not found');
     }
 
-    return { _id: userInfo._id, credits: userInfo.credits };
+    return { _id: userInfo._id.toString(), credits: userInfo.credits };
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return AppError.message;
+  } finally {
+    mongoose.connection.close();
+  }
+}
+
+export async function getUserParkingActions(): Promise<FetchParkingAction[]> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+  const cookieStore = cookies();
+
+  const token = cookieStore.get('session')?.value;
+  const { username } = await getUserInfoFromCookie(token);
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    await mongoose.connect(mongoDbUrl);
+    const userInfo = await UserModel.findOne<User>({
+      username: username,
+    });
+
+    if (!userInfo) {
+      throw new AppError('User not found');
+    }
+
+    const userCars = await CarModel.find<Car>({
+      ownerId: userInfo._id,
+    });
+    const userCarsIds = userCars.map((car) => car._id);
+
+    const parkingActions = await ParkingActionsModel.find<ParkingActions>({
+      carId: { $in: userCarsIds },
+    })
+      .populate({ path: 'parkingSpaceId', model: 'ParkingSpace' })
+      .populate({ path: 'carId', model: 'Car' });
+
+    return parkingActions.map((action) => ({
+      _id: action._id.toString(),
+      parkingSpaceId: (
+        action.parkingSpaceId as unknown as ParkingSpace
+      )._id.toString(),
+      parkingSpaceNumber: (action.parkingSpaceId as unknown as ParkingSpace)
+        .spaceNumber,
+      carId: action.carId._id.toString(),
+      carRegistrationPlate: (action.carId as unknown as Car).registrationPlate,
+      status: action.status,
+      parkTime: action.parkTime,
+      leaveTime: action.leaveTime,
+    })) as FetchParkingAction[];
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return AppError.message;
+  } finally {
+    mongoose.connection.close();
+  }
+}
+
+export async function getParkingSpaces(): Promise<FetchParkingSpace[]> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    await mongoose.connect(mongoDbUrl);
+
+    const parkingSpaces = await ParkingSpaceModel.find<ParkingSpace>({});
+    return parkingSpaces.map((space) => ({
+      _id: space._id.toString(),
+      spaceNumber: space.spaceNumber,
+      status: space.status,
+    }));
   } catch (AppError: any) {
     console.error(AppError.message);
     return AppError.message;

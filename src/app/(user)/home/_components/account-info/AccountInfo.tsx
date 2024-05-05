@@ -21,12 +21,28 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { AccountInfoContext } from '@/context/AccountInfoContext';
+import { ParkingActionsContext } from '@/context/ParkingActionsContext';
 import { useContext } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 
 export default function AccountInfo() {
   const { accountInfo } = useContext(AccountInfoContext);
+  const { parkingActions } = useContext(ParkingActionsContext);
   const [errorMessageLogout, dispatchLogout] = useFormState(logout, undefined);
+
+  const getTimeSpent = (parkTimeEnter: Date, parkTimeLeave: Date) => {
+    const differenceMs = parkTimeLeave.getTime() - parkTimeEnter.getTime();
+    const hours = Math.floor(differenceMs / (1000 * 60 * 60));
+    const minutes = Math.floor((differenceMs % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}h ${minutes}m`;
+  };
+
+  const calculateAmount = (parkTimeEnter: Date, parkTimeLeave: Date) => {
+    const differenceMs = parkTimeLeave.getTime() - parkTimeEnter.getTime();
+    const hours = Math.floor(differenceMs / (1000 * 60 * 60));
+    const minutes = Math.floor((differenceMs % (1000 * 60 * 60)) / (1000 * 60));
+    return hours * 2;
+  };
 
   return (
     <Card title="Account info" className="row-span-3 h-full overflow-hidden">
@@ -49,7 +65,6 @@ export default function AccountInfo() {
             <TableCaption>A list of your recent reservations.</TableCaption>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[100px]">Reservation</TableHead>
                 <TableHead>Spot</TableHead>
                 <TableHead>Car license</TableHead>
                 <TableHead>Time spent</TableHead>
@@ -58,18 +73,37 @@ export default function AccountInfo() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array.from({ length: 20 }).map((_, index) => (
+              {parkingActions.map((parkingAction, index) => (
                 <TableRow key={index}>
-                  <TableCell className="font-medium">1239012</TableCell>
-                  <TableCell>17</TableCell>
-                  <TableCell>CT2180X</TableCell>
-                  <TableCell>1h 37min</TableCell>
+                  <TableCell>{parkingAction.parkingSpaceNumber}</TableCell>
+                  <TableCell>{parkingAction.carRegistrationPlate}</TableCell>
                   <TableCell>
-                    <Badge variant={index === 0 ? 'default' : 'outline'}>
-                      {index === 0 ? 'Active' : 'Paid'}
+                    {parkingAction.leaveTime
+                      ? getTimeSpent(
+                          parkingAction.parkTime,
+                          parkingAction.leaveTime
+                        )
+                      : 'N/A'}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        parkingAction.status === 'pending'
+                          ? 'default'
+                          : 'outline'
+                      }
+                    >
+                      {parkingAction.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">$250.00</TableCell>
+                  <TableCell className="text-right">
+                    {parkingAction.leaveTime === null
+                      ? 'N/A'
+                      : calculateAmount(
+                          parkingAction.parkTime,
+                          parkingAction.leaveTime
+                        )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

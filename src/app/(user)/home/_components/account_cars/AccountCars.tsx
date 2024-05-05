@@ -35,19 +35,24 @@ export default function AccountCars() {
   useEffect(() => {
     if (errorAdd?.isSuccessful || errorRemove?.isSuccessful) {
       getCars().then((cars) => setCarsList(cars));
+      toast({
+        variant: 'success',
+        title: 'Success',
+        description: 'Operation completed successfully.',
+      });
     }
     if (errorAdd && !errorAdd.isSuccessful) {
       console.log(errorAdd?.message);
       toast({
         variant: 'destructive',
-        title: 'Failed to add car',
+        title: 'Failed to add car.',
         description: errorAdd?.message,
       });
     }
     if (errorRemove && !errorRemove.isSuccessful) {
       toast({
         variant: 'destructive',
-        title: 'Failed to remove car',
+        title: 'Failed to remove car.',
         description: errorRemove?.message,
       });
     }
