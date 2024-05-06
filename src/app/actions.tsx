@@ -54,7 +54,7 @@ async function initializeDatabase() {
 }
 
 export async function login(currentState: unknown, formData: FormData) {
-  console.log('Login function running');
+  console.info('Login function running');
   const mongoDbUrl = process.env.MONGODB_URL;
 
   try {
@@ -566,6 +566,105 @@ export async function getParkingSpaces(): Promise<FetchParkingSpace[]> {
   } catch (AppError: any) {
     console.error(AppError.message);
     return AppError.message;
+  } finally {
+    mongoose.connection.close();
+  }
+}
+
+export async function payParking(
+  currentState: unknown,
+  formData: FormData
+): Promise<
+  CustomResponse<{ parkingActionId: string; newUserCredits: number } | null>
+> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+  const cookieStore = cookies();
+
+  const token = cookieStore.get('session')?.value;
+  const { username } = await getUserInfoFromCookie(token);
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+
+    const amount = formData.get('currentAmount');
+    if (!amount) {
+      throw new AppError('Amount value is invalid');
+    }
+
+    await mongoose.connect(mongoDbUrl);
+    const foundUser = await UserModel.findOne<User>({
+      username,
+    });
+
+    if (!foundUser) {
+      throw new AppError('User not found');
+    }
+    if (foundUser.credits < parseFloat(amount as string)) {
+      throw new AppError('Not enough credits');
+    }
+
+    const carLicense = formData.get('carLicense');
+    const car = await CarModel.findOne<Car>({
+      registrationPlate: carLicense,
+      ownerId: foundUser._id,
+    });
+
+    if (!car) {
+      throw new AppError('Car not found');
+    }
+
+    const parkingAction = await ParkingActionsModel.findOne<ParkingAction>({
+      carId: car._id,
+      status: parkingActionStatusEnum.pending,
+    });
+
+    if (!parkingAction) {
+      throw new AppError('Parking action not found');
+    }
+
+    await UserModel.updateOne(
+      {
+        username,
+      },
+      {
+        $inc: {
+          credits: -parseFloat(amount as string),
+        },
+      }
+    );
+
+    await ParkingActionsModel.updateOne(
+      {
+        _id: parkingAction._id,
+      },
+      {
+        status: parkingActionStatusEnum.payed,
+        leaveTime: new Date(),
+      }
+    );
+
+    await ParkingSpaceModel.updateOne(
+      {
+        _id: parkingAction.parkingSpaceId,
+      },
+      {
+        status: parkingSpaceStatusEnum.free,
+      }
+    );
+
+    console.info('Parking paid');
+    return {
+      isSuccessful: true,
+      message: 'Funds added',
+      data: {
+        parkingActionId: parkingAction._id.toString(),
+        newUserCredits: foundUser.credits - parseFloat(amount as string),
+      },
+    };
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return { isSuccessful: false, message: AppError.message, data: null };
   } finally {
     mongoose.connection.close();
   }

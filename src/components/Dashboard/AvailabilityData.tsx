@@ -4,9 +4,13 @@ import Image from 'next/image';
 import BAR_CHART_ICON from '../../assets/icons/bar-chart-big.svg';
 import { ParkingSpacesContext } from '@/context/ParkingSpacesContext';
 import { parkingSpaceStatusEnum } from '@/constants/enumConstants';
+import { useFormState, useFormStatus } from 'react-dom';
+import { Button } from '../ui/button';
+import { logout } from '@/app/actions';
 
 const AvailabilityData = () => {
   const { parkingSpaces } = useContext(ParkingSpacesContext);
+  const [errorMessageLogout, dispatchLogout] = useFormState(logout, undefined);
   let time = new Date().toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
@@ -49,8 +53,13 @@ const AvailabilityData = () => {
           <div className="flex min-h-12 min-w-12 items-center justify-center rounded-lg bg-white">
             <Image src={BAR_CHART_ICON} alt="Parking" />
           </div>
-          <div className="flex items-center justify-center rounded-lg bg-white px-8 text-center text-lg font-bold text-black">
-            {ctime}
+          <div className="flex min-h-12 items-center gap-4">
+            <div className="flex h-full items-center justify-center rounded-lg bg-white px-4 text-center text-lg font-bold text-black">
+              <h2>{ctime}</h2>
+            </div>
+            <form action={dispatchLogout} className="h-full">
+              <LogoutButton />
+            </form>
           </div>
         </div>
       </div>
@@ -59,3 +68,24 @@ const AvailabilityData = () => {
 };
 
 export default AvailabilityData;
+
+const LogoutButton = () => {
+  const { pending } = useFormStatus();
+
+  const handleClick = (event: any) => {
+    if (pending) {
+      event.preventDefault();
+    }
+  };
+
+  return (
+    <Button
+      aria-disabled={pending}
+      type="submit"
+      onClick={handleClick}
+      className="h-full bg-white text-center text-lg font-bold text-black hover:text-white"
+    >
+      Logout
+    </Button>
+  );
+};

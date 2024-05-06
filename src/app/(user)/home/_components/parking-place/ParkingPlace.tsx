@@ -23,11 +23,13 @@ import { useContext, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 import { useToast } from '@/components/ui/use-toast';
 import { ParkingActionsContext } from '@/context/ParkingActionsContext';
+import { FetchParkingAction } from '@/models/ParkingAction';
+import { PaymentPlanHoverButton } from '../payment/Payment';
 
 export default function ParkingPlace({
-  setHasPendingPayments,
+  setPendingPayment,
 }: {
-  setHasPendingPayments: (value: boolean) => void;
+  setPendingPayment: (value: FetchParkingAction | undefined) => void;
 }) {
   const { toast } = useToast();
   const { carsList } = useContext(CarsListContext);
@@ -49,7 +51,7 @@ export default function ParkingPlace({
     }
     if (errorOrder && errorOrder.isSuccessful && errorOrder.data) {
       setParkingActions([...parkingActions, errorOrder.data]);
-      setHasPendingPayments(true);
+      setPendingPayment(errorOrder.data);
       toast({
         variant: 'success',
         title: 'Success',
@@ -94,7 +96,10 @@ export default function ParkingPlace({
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              <OrderButton />
+              <div className="flex items-center gap-4 mt-4">
+                <OrderButton />
+                <PaymentPlanHoverButton />
+              </div>
             </form>
           </div>
         </div>
@@ -113,12 +118,7 @@ const OrderButton = () => {
   };
 
   return (
-    <Button
-      aria-disabled={pending}
-      type="submit"
-      onClick={handleClick}
-      className="mt-4"
-    >
+    <Button aria-disabled={pending} type="submit" onClick={handleClick}>
       Order
     </Button>
   );

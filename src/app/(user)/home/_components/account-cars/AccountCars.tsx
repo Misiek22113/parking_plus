@@ -42,7 +42,6 @@ export default function AccountCars() {
       });
     }
     if (errorAdd && !errorAdd.isSuccessful) {
-      console.log(errorAdd?.message);
       toast({
         variant: 'destructive',
         title: 'Failed to add car.',

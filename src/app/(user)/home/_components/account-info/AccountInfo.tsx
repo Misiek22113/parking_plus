@@ -23,6 +23,7 @@ import {
 import { parkingActionStatusEnum } from '@/constants/enumConstants';
 import { AccountInfoContext } from '@/context/AccountInfoContext';
 import { ParkingActionsContext } from '@/context/ParkingActionsContext';
+import { getTimeSpent, calculateAmount, getSimpleDateTime } from '@/lib/utils';
 import { useContext } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
 
@@ -30,22 +31,6 @@ export default function AccountInfo() {
   const { accountInfo } = useContext(AccountInfoContext);
   const { parkingActions } = useContext(ParkingActionsContext);
   const [errorMessageLogout, dispatchLogout] = useFormState(logout, undefined);
-
-  const getTimeSpent = (parkTimeEnter: Date, parkTimeLeave: Date) => {
-    const differenceMs = parkTimeLeave.getTime() - parkTimeEnter.getTime();
-    const hours = Math.floor(differenceMs / (1000 * 60 * 60));
-    const minutes = Math.floor((differenceMs % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}h ${minutes}m`;
-  };
-
-  const calculateAmount = (parkTimeEnter: Date, parkTimeLeave: Date) => {
-    const differenceMs = parkTimeLeave.getTime() - parkTimeEnter.getTime();
-    const hours = Math.floor(differenceMs / (1000 * 60 * 60));
-    const minutes = Math.floor((differenceMs % (1000 * 60 * 60)) / (1000 * 60));
-    return hours * 2;
-  };
-
-  console.log(parkingActions);
 
   return (
     <Card title="Account info" className="row-span-3 h-full overflow-hidden">
@@ -58,7 +43,7 @@ export default function AccountInfo() {
       </CardHeader>
       <CardContent className="mt-4 h-1/2">
         <div className="text-lg">Your account balance</div>
-        <div className="dy-2 text-4xl font-bold">
+        <div className="text-4xl font-bold">
           {accountInfo && accountInfo.credits} PLN
         </div>
         <Separator className="my-4" />
@@ -70,6 +55,7 @@ export default function AccountInfo() {
               <TableRow>
                 <TableHead>Spot</TableHead>
                 <TableHead>Car license</TableHead>
+                <TableHead>Enter date</TableHead>
                 <TableHead>Time spent</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
@@ -80,6 +66,9 @@ export default function AccountInfo() {
                 <TableRow key={index}>
                   <TableCell>{parkingAction.parkingSpaceNumber}</TableCell>
                   <TableCell>{parkingAction.carRegistrationPlate}</TableCell>
+                  <TableCell>
+                    {getSimpleDateTime(parkingAction.parkTime)}
+                  </TableCell>
                   <TableCell>
                     {parkingAction.leaveTime
                       ? getTimeSpent(
@@ -102,10 +91,10 @@ export default function AccountInfo() {
                   <TableCell className="text-right">
                     {parkingAction.leaveTime === null
                       ? 'N/A'
-                      : calculateAmount(
+                      : `${calculateAmount(
                           parkingAction.parkTime,
                           parkingAction.leaveTime
-                        )}
+                        )} PLN`}
                   </TableCell>
                 </TableRow>
               ))}
