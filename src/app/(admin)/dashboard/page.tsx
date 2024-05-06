@@ -1,5 +1,6 @@
 'use client';
 
+import { getParkingSpaces } from '@/app/actions';
 import ParkingSlot from '@/components/ParkingSlot/ParkingSlot';
 import { ParkingSpacesContext } from '@/context/ParkingSpacesContext';
 import { useContext } from 'react';

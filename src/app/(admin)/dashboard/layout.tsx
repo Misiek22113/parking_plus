@@ -18,9 +18,15 @@ export default function UserLayout({
   const [selectedSlot, setSelectedSlot] = useState(0);
   const [parkingSpaces, setParkingSpaces] = useState<FetchParkingSpace[]>([]);
 
-  setInterval(() => {
+  useEffect(() => {
     getParkingSpaces().then((spaces) => setParkingSpaces(spaces));
-  }, 1000 * 30);
+
+    const interval = setInterval(() => {
+      getParkingSpaces().then((spaces) => setParkingSpaces(spaces));
+    }, 1000 * 30);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <SelectedSlotContext.Provider

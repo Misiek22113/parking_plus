@@ -43,9 +43,13 @@ export default function Payment({
   );
   const [errorPay, dispatchPayPayment] = useFormState(payParking, undefined);
 
-  setInterval(() => {
-    setCurrentTime(new Date());
-  }, 1000 * 60);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000 * 60);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (errorPay && errorPay.isSuccessful && errorPay.data) {
