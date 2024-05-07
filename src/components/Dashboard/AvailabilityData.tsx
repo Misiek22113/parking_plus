@@ -7,6 +7,7 @@ import { parkingSpaceStatusEnum } from '@/constants/enumConstants';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Button } from '../ui/button';
 import { logout } from '@/app/actions';
+import ActionsTable from './ActionsTable';
 
 const AvailabilityData = () => {
   const { parkingSpaces } = useContext(ParkingSpacesContext);
@@ -50,9 +51,7 @@ const AvailabilityData = () => {
           isAvailableSlotCount={false}
         />
         <div className="flex justify-between">
-          <div className="flex min-h-12 min-w-12 items-center justify-center rounded-lg bg-white">
-            <Image src={BAR_CHART_ICON} alt="Parking" />
-          </div>
+          <ActionsTable />
           <div className="flex min-h-12 items-center gap-4">
             <div className="flex h-full items-center justify-center rounded-lg bg-white px-4 text-center text-lg font-bold text-black">
               <h2>{ctime}</h2>
