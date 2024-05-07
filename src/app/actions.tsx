@@ -669,3 +669,7 @@ export async function payParking(
     mongoose.connection.close();
   }
 }
+
+export async function fetchFilteredActions(): Promise<FetchParkingSpace[]> {
+  return [];
+}
