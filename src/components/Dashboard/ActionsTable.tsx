@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DatePicker } from './DatePicker';
 
 const ActionsTable = () => {
   const [errorFilterActions, dispatchFilterActions] = useFormState(
@@ -39,7 +40,7 @@ const ActionsTable = () => {
           <Image src={BAR_CHART_ICON} alt="Parking" />
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Parking Actions</DialogTitle>
           <DialogDescription>
@@ -48,16 +49,15 @@ const ActionsTable = () => {
         </DialogHeader>
         <form action={dispatchFilterActions}>
           <div className="flex gap-6">
-            <Input placeholder="Spot" />
-            <Input placeholder="Car license" />
-            <Input placeholder="Data" />
+            <Input placeholder="Spot" className="sm:max-w-[170px]" />
+            <Input placeholder="Car license" className="sm:max-w-[170px]" />
+            <DatePicker />
             <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select a fruit" />
+              <SelectTrigger className="w-[170px]">
+                <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Status</SelectLabel>
                   <SelectItem value="apple">pending</SelectItem>
                   <SelectItem value="banana">payed</SelectItem>
                 </SelectGroup>
