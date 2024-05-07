@@ -1,4 +1,11 @@
 import BAR_CHART_ICON from '../../assets/icons/bar-chart-big.svg';
+import { useState } from 'react';
+import Image from 'next/image';
+import { useFormState } from 'react-dom';
+import { Input } from '../ui/input';
+import { fetchFilteredActions } from '@/app/actions';
+import { DatePicker } from './DatePicker';
+import { ScrollArea } from '../ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -7,21 +14,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
-import Image from 'next/image';
-import { useFormState } from 'react-dom';
-import { Input } from '../ui/input';
-import { fetchFilteredActions } from '@/app/actions';
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { DatePicker } from './DatePicker';
+import {
+  Table,
+  TableCaption,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from '@/components/ui/table';
 
 const ActionsTable = () => {
   const [errorFilterActions, dispatchFilterActions] = useFormState(
@@ -47,7 +56,7 @@ const ActionsTable = () => {
             Filter and view all your parking actions.
           </DialogDescription>
         </DialogHeader>
-        <form action={dispatchFilterActions}>
+        <form action={dispatchFilterActions} className="flex flex-col gap-8">
           <div className="flex gap-6">
             <Input placeholder="Spot" className="sm:max-w-[170px]" />
             <Input placeholder="Car license" className="sm:max-w-[170px]" />
@@ -64,6 +73,60 @@ const ActionsTable = () => {
               </SelectContent>
             </Select>
           </div>
+          <ScrollArea className="h-full">
+            <Table>
+              <TableCaption>A list of your recent reservations.</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Spot</TableHead>
+                  <TableHead>Car license</TableHead>
+                  <TableHead>Enter date</TableHead>
+                  <TableHead>Time spent</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                </TableRow>
+              </TableHeader>
+              {/* <TableBody>
+                {parkingActions.map((parkingAction, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{parkingAction.parkingSpaceNumber}</TableCell>
+                    <TableCell>{parkingAction.carRegistrationPlate}</TableCell>
+                    <TableCell>
+                      {getSimpleDateTime(parkingAction.parkTime)}
+                    </TableCell>
+                    <TableCell>
+                      {parkingAction.leaveTime
+                        ? getTimeSpent(
+                            parkingAction.parkTime,
+                            parkingAction.leaveTime
+                          )
+                        : 'N/A'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          parkingAction.status ===
+                          parkingActionStatusEnum.pending
+                            ? 'default'
+                            : 'outline'
+                        }
+                      >
+                        {parkingAction.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {parkingAction.leaveTime === null
+                        ? 'N/A'
+                        : `${calculateAmount(
+                            parkingAction.parkTime,
+                            parkingAction.leaveTime
+                          )} PLN`}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody> */}
+            </Table>
+          </ScrollArea>
         </form>
       </DialogContent>
     </Dialog>
