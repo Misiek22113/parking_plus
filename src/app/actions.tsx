@@ -639,7 +639,7 @@ export async function payParking(
         _id: parkingAction._id,
       },
       {
-        status: parkingActionStatusEnum.payed,
+        status: parkingActionStatusEnum.paid,
         leaveTime: new Date(),
       }
     );

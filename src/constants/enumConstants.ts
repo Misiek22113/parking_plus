@@ -1,7 +1,7 @@
-export const parkingActionStatus = ['pending', 'payed'];
+export const parkingActionStatus = ['pending', 'paid'];
 export const parkingActionStatusEnum = {
   pending: 'pending',
-  payed: 'payed',
+  paid: 'paid',
 };
 
 export const parkingSpaceStatus = ['free', 'occupied'];
