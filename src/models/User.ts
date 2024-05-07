@@ -1,3 +1,4 @@
+import { userRole, userRoleEnum } from '@/constants/enumConstants';
 import mongoose, { InferSchemaType } from 'mongoose';
 
 const userSchema = new mongoose.Schema({
@@ -18,8 +19,8 @@ const userSchema = new mongoose.Schema({
   },
   userRole: {
     type: String,
-    enum: ['user', 'admin'],
-    default: 'user',
+    enum: userRole,
+    default: userRoleEnum.user,
   },
 });
 
@@ -27,3 +28,8 @@ type UserSchemaType = InferSchemaType<typeof userSchema>;
 export interface User extends UserSchemaType, mongoose.Document {}
 export const UserModel =
   mongoose.models.User || mongoose.model<User>('User', userSchema);
+
+export interface FetchUser {
+  _id: string;
+  credits: number;
+}

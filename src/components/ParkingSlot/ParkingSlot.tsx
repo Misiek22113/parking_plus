@@ -1,28 +1,29 @@
 'use client';
 
+import { parkingSpaceStatusEnum } from '@/constants/enumConstants';
 import { SelectedSlotContext } from '@/context/SelectedSlotContext';
 import { useContext } from 'react';
 
 export type ParkingSlotProps = {
-  isAvailable: boolean;
-  slotNumber: number;
+  status: string;
+  spaceNumber: number;
 };
 
-const ParkingSlot = ({ isAvailable, slotNumber }: ParkingSlotProps) => {
+const ParkingSlot = ({ status, spaceNumber }: ParkingSlotProps) => {
   const { selectedSlotNumber, setSelectedSlotNumber } =
     useContext(SelectedSlotContext);
 
   const setIsSelected = () => {
-    setSelectedSlotNumber(selectedSlotNumber === slotNumber ? 0 : slotNumber);
+    setSelectedSlotNumber(selectedSlotNumber === spaceNumber ? 0 : spaceNumber);
   };
 
   return (
     <div
-      className={`flex min-h-28 max-w-28 cursor-pointer items-center justify-center rounded-lg text-5xl ${isAvailable ? ' bg-teal-500' : 'bg-red-500'} 
-      ${selectedSlotNumber === slotNumber && 'border-4'}`}
+      className={`flex min-h-28 max-w-28 cursor-pointer items-center justify-center rounded-lg text-3xl font-medium transition-all duration-200 ease-in-out ${status === parkingSpaceStatusEnum.free ? ' border-teal-900 bg-teal-500' : 'border-red-900 bg-red-500'} 
+      ${selectedSlotNumber === spaceNumber && 'border-8'}`}
       onClick={setIsSelected}
     >
-      {slotNumber}
+      {spaceNumber}
     </div>
   );
 };
