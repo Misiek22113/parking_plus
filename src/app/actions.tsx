@@ -192,6 +192,16 @@ export async function orderParkingSpace(
       throw new AppError('Car not found');
     }
 
+    const pendingParkingAction =
+      await ParkingActionsModel.findOne<ParkingAction>({
+        carId: foundCar._id,
+        status: parkingActionStatusEnum.pending,
+      });
+
+    if (pendingParkingAction) {
+      throw new AppError('Car already has a pending parking action');
+    }
+
     const foundUser = await UserModel.findOne<User>({
       username,
     });
