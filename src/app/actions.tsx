@@ -680,6 +680,35 @@ export async function payParking(
   }
 }
 
-export async function fetchFilteredActions(): Promise<FetchParkingSpace[]> {
-  return [];
+export async function fetchFilteredActions(): Promise<FetchParkingAction[]> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+
+    await mongoose.connect(mongoDbUrl);
+
+    const parkingActions = await ParkingActionsModel.find();
+
+    return parkingActions.map((action) => ({
+      _id: action._id.toString(),
+      parkingSpaceId: (
+        action.parkingSpaceId as unknown as ParkingSpace
+      )._id.toString(),
+      parkingSpaceNumber: (action.parkingSpaceId as unknown as ParkingSpace)
+        .spaceNumber,
+      carId: action.carId._id.toString(),
+      carRegistrationPlate: (action.carId as unknown as Car).registrationPlate,
+      status: action.status,
+      parkTime: action.parkTime,
+      leaveTime: action.leaveTime,
+    })) as FetchParkingAction[];
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return AppError.message;
+  } finally {
+    mongoose.connection.close();
+  }
 }
