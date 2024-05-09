@@ -670,7 +670,10 @@ export async function payParking(
   }
 }
 
-export async function fetchFilteredActions(): Promise<
+export async function fetchFilteredActions(
+  currentState: unknown,
+  formData: FormData
+): Promise<
   {
     parkingSpaceNumber: number;
     status: string;
@@ -681,6 +684,10 @@ export async function fetchFilteredActions(): Promise<
 > {
   const mongoDbUrl = process.env.MONGODB_URL;
 
+  const spot = formData.get('spot');
+  const status = formData.get('status');
+  const license = formData.get('license');
+
   try {
     if (!mongoDbUrl) {
       throw new AppError('MongoDB URL is not defined');
@@ -690,41 +697,68 @@ export async function fetchFilteredActions(): Promise<
 
     const parkingActions = await ParkingActionsModel.find();
 
-    const parkingActionsList = (await Promise.all(
-      parkingActions.map(async (action) => {
-        console.log(action.carId.toString());
+    let parkingActionsList = [];
 
-        const car = await CarModel.findById(action.carId.toString());
-        const spot = await ParkingSpaceModel.findById(
-          action.parkingSpaceId.toString()
-        );
+    for (const action of parkingActions) {
+      const car = await CarModel.findById(action.carId.toString());
+      const spot = await ParkingSpaceModel.findById(
+        action.parkingSpaceId.toString()
+      );
 
-        if (!car) {
-          throw new AppError('Car not found');
-        }
+      if (!car) {
+        throw new AppError('Car not found');
+      }
 
-        console.log(car.registrationPlate);
+      action.carRegistrationPlate = car.registrationPlate;
+      const actionObj = action.toObject();
 
-        action.carRegistrationPlate = car.registrationPlate;
-        const actionObj = action.toObject();
+      parkingActionsList.push({
+        parkingSpaceNumber: spot.spaceNumber,
+        status: actionObj.status,
+        parkTime: actionObj.parkTime,
+        leaveTime: actionObj.leaveTime,
+        carRegistrationPlate: car.registrationPlate,
+      });
+    }
 
-        return {
-          parkingSpaceNumber: spot.spaceNumber,
-          status: actionObj.status,
-          parkTime: actionObj.parkTime,
-          leaveTime: actionObj.leaveTime,
-          carRegistrationPlate: car.registrationPlate,
-        };
-      })
-    )) as FetchParkingAction[];
-
-    console.log(parkingActionsList);
-
-    return parkingActionsList;
-  } catch (AppError: any) {
-    console.error(AppError.message);
-    return AppError.message;
+    return filterList(
+      parkingActionsList,
+      parseInt(spot as string),
+      license as string,
+      status as string
+    );
+  } catch (error) {
+    // console.error(error.message);
+    // throw new Error(error.message);
   } finally {
     mongoose.connection.close();
   }
+
+  return [];
+}
+
+function filterList(
+  myList: {
+    parkingSpaceNumber: number;
+    status: string;
+    parkTime: Date;
+    leaveTime: Date | null;
+    carRegistrationPlate: string;
+  }[],
+  spot?: number,
+  license?: string,
+  status?: string
+) {
+  console.log(myList);
+  return myList.filter((item) => {
+    const spotCondition = spot ? item.parkingSpaceNumber === spot : true;
+    console.log('spot', spotCondition, item.parkingSpaceNumber, spot);
+    const licenseCondition = license
+      ? item.carRegistrationPlate === license
+      : true;
+    const statusCondition = status ? item.status === status : true;
+    console.log('status', statusCondition, item.status, status);
+
+    return spotCondition && licenseCondition && statusCondition;
+  });
 }

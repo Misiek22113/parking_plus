@@ -63,17 +63,25 @@ const ActionsTable = () => {
         </DialogHeader>
         <form action={dispatchFilterActions} className="flex flex-col gap-8">
           <div className="flex gap-6">
-            <Input placeholder="Spot" className="sm:max-w-[170px]" />
-            <Input placeholder="Car license" className="sm:max-w-[170px]" />
+            <Input
+              placeholder="Spot"
+              name="spot"
+              className="sm:max-w-[170px]"
+            />
+            <Input
+              placeholder="Car license"
+              name="license"
+              className="sm:max-w-[170px]"
+            />
             <DatePicker />
-            <Select>
+            <Select name="status">
               <SelectTrigger className="w-[170px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectItem value="apple">pending</SelectItem>
-                  <SelectItem value="banana">payed</SelectItem>
+                  <SelectItem value="pending">pending</SelectItem>
+                  <SelectItem value="payed">payed</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
