@@ -27,10 +27,10 @@ const ParkingSlotData = () => {
   const getParkingSpaceInfoHeader = () => {
     if (selectedSlotNumber === 0) {
       return 'No slot selected';
-    } else if (isSpaceOccupied === null) {
+    } else if (parkingSpotData.carRegistrationPlate === null) {
       return 'Slot is empty';
     } else {
-      return isSpaceOccupied;
+      return parkingSpotData.carRegistrationPlate;
     }
   };
 
@@ -72,7 +72,8 @@ const ParkingSlotData = () => {
           </div>
         </Card>
       </div>
-      {selectedSlotNumber !== 0 && isSpaceOccupied !== null ? (
+      {selectedSlotNumber !== 0 &&
+      parkingSpotData.carRegistrationPlate !== null ? (
         <>
           <Card className="w-min whitespace-nowrap">
             <CardHeader>
@@ -93,7 +94,7 @@ const ParkingSlotData = () => {
             </CardFooter>
           </Card>
           <Image
-            src={`/cars/car${selectedSlotNumber % 10}.jpg`}
+            src={`/cars/car${parkingSpotData.carRegistrationPlate.charCodeAt(0) % 18}.jpg`}
             width={500}
             height={50}
             className=" w-4/5 rounded-lg"
