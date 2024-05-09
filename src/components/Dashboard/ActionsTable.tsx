@@ -1,5 +1,5 @@
 import BAR_CHART_ICON from '../../assets/icons/bar-chart-big.svg';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Input } from '../ui/input';
@@ -41,8 +41,30 @@ const ActionsTable = () => {
     fetchFilteredActions,
     undefined
   );
-
+  const [parkingAction, setParkingAction] = useState<
+    {
+      parkingSpaceNumber: number;
+      status: string;
+      parkTime: Date;
+      leaveTime: Date | null;
+      carRegistrationPlate: string;
+    }[]
+  >();
   const [isOpen, setIsOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>();
+
+  useEffect(() => {
+    if (date && formState) {
+      setParkingAction(
+        formState?.filter(
+          (action) => action.parkTime.getDay() === date.getDay()
+        )
+      );
+    }
+    if (!date) {
+      setParkingAction(formState);
+    }
+  }, [setDate, formState, date]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -56,9 +78,9 @@ const ActionsTable = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
-          <DialogTitle>Parking Actions</DialogTitle>
+          <DialogTitle>Parking History</DialogTitle>
           <DialogDescription>
-            Filter and view all your parking actions.
+            Filter and view all parking actions.
           </DialogDescription>
         </DialogHeader>
         <form action={dispatchFilterActions} className="flex flex-col gap-8">
@@ -73,7 +95,7 @@ const ActionsTable = () => {
               name="license"
               className="sm:max-w-[170px]"
             />
-            <DatePicker />
+            <DatePicker setDate={setDate} date={date} />
             <Select name="status">
               <SelectTrigger className="w-[170px]">
                 <SelectValue placeholder="Status" />
@@ -88,20 +110,24 @@ const ActionsTable = () => {
           </div>
           <ScrollArea className="h-full">
             <Table>
-              <TableCaption>A list of your recent reservations.</TableCaption>
+              <TableCaption>
+                {parkingAction && parkingAction.length > 0
+                  ? 'A list parking actions'
+                  : 'There is no such actions'}
+              </TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead>Spot</TableHead>
-                  <TableHead>Car license</TableHead>
+                  <TableHead>Car Plate</TableHead>
                   <TableHead>Enter date</TableHead>
                   <TableHead>Time spent</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead className="text-right">Price</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {formState &&
-                  formState.map((parkingAction, index) => (
+                {parkingAction &&
+                  parkingAction.map((parkingAction, index) => (
                     <TableRow key={index}>
                       <TableCell>{parkingAction.parkingSpaceNumber}</TableCell>
                       <TableCell>

@@ -727,14 +727,12 @@ export async function fetchFilteredActions(
       license as string,
       status as string
     );
-  } catch (error) {
-    // console.error(error.message);
-    // throw new Error(error.message);
+  } catch (error: any) {
+    console.error(error.message);
+    throw new Error(error.message);
   } finally {
     mongoose.connection.close();
   }
-
-  return [];
 }
 
 function filterList(
@@ -749,15 +747,12 @@ function filterList(
   license?: string,
   status?: string
 ) {
-  console.log(myList);
   return myList.filter((item) => {
     const spotCondition = spot ? item.parkingSpaceNumber === spot : true;
-    console.log('spot', spotCondition, item.parkingSpaceNumber, spot);
     const licenseCondition = license
       ? item.carRegistrationPlate === license
       : true;
     const statusCondition = status ? item.status === status : true;
-    console.log('status', statusCondition, item.status, status);
 
     return spotCondition && licenseCondition && statusCondition;
   });
