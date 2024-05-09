@@ -680,7 +680,15 @@ export async function payParking(
   }
 }
 
-export async function fetchFilteredActions(): Promise<FetchParkingAction[]> {
+export async function fetchFilteredActions(): Promise<
+  {
+    parkingSpaceNumber: number;
+    status: string;
+    parkTime: Date;
+    leaveTime: Date | null;
+    carRegistrationPlate: string;
+  }[]
+> {
   const mongoDbUrl = process.env.MONGODB_URL;
 
   try {
@@ -692,19 +700,37 @@ export async function fetchFilteredActions(): Promise<FetchParkingAction[]> {
 
     const parkingActions = await ParkingActionsModel.find();
 
-    return parkingActions.map((action) => ({
-      _id: action._id.toString(),
-      parkingSpaceId: (
-        action.parkingSpaceId as unknown as ParkingSpace
-      )._id.toString(),
-      parkingSpaceNumber: (action.parkingSpaceId as unknown as ParkingSpace)
-        .spaceNumber,
-      carId: action.carId._id.toString(),
-      carRegistrationPlate: (action.carId as unknown as Car).registrationPlate,
-      status: action.status,
-      parkTime: action.parkTime,
-      leaveTime: action.leaveTime,
-    })) as FetchParkingAction[];
+    const parkingActionsList = (await Promise.all(
+      parkingActions.map(async (action) => {
+        console.log(action.carId.toString());
+
+        const car = await CarModel.findById(action.carId.toString());
+        const spot = await ParkingSpaceModel.findById(
+          action.parkingSpaceId.toString()
+        );
+
+        if (!car) {
+          throw new AppError('Car not found');
+        }
+
+        console.log(car.registrationPlate);
+
+        action.carRegistrationPlate = car.registrationPlate;
+        const actionObj = action.toObject();
+
+        return {
+          parkingSpaceNumber: spot.spaceNumber,
+          status: actionObj.status,
+          parkTime: actionObj.parkTime,
+          leaveTime: actionObj.leaveTime,
+          carRegistrationPlate: car.registrationPlate,
+        };
+      })
+    )) as FetchParkingAction[];
+
+    console.log(parkingActionsList);
+
+    return parkingActionsList;
   } catch (AppError: any) {
     console.error(AppError.message);
     return AppError.message;
