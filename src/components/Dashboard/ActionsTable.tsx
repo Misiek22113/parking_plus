@@ -1,7 +1,7 @@
 import BAR_CHART_ICON from '../../assets/icons/bar-chart-big.svg';
 import { useState } from 'react';
 import Image from 'next/image';
-import { useFormState } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import { Input } from '../ui/input';
 import { fetchFilteredActions } from '@/app/actions';
 import { DatePicker } from './DatePicker';
@@ -31,12 +31,17 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { calculateAmount, getSimpleDateTime, getTimeSpent } from '@/lib/utils';
+import { parkingActionStatusEnum } from '@/constants/enumConstants';
 
 const ActionsTable = () => {
-  const [errorFilterActions, dispatchFilterActions] = useFormState(
+  const [formState, dispatchFilterActions] = useFormState(
     fetchFilteredActions,
     undefined
   );
+
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -86,50 +91,70 @@ const ActionsTable = () => {
                   <TableHead className="text-right">Amount</TableHead>
                 </TableRow>
               </TableHeader>
-              {/* <TableBody>
-                {parkingActions.map((parkingAction, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{parkingAction.parkingSpaceNumber}</TableCell>
-                    <TableCell>{parkingAction.carRegistrationPlate}</TableCell>
-                    <TableCell>
-                      {getSimpleDateTime(parkingAction.parkTime)}
-                    </TableCell>
-                    <TableCell>
-                      {parkingAction.leaveTime
-                        ? getTimeSpent(
-                            parkingAction.parkTime,
-                            parkingAction.leaveTime
-                          )
-                        : 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          parkingAction.status ===
-                          parkingActionStatusEnum.pending
-                            ? 'default'
-                            : 'outline'
-                        }
-                      >
-                        {parkingAction.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {parkingAction.leaveTime === null
-                        ? 'N/A'
-                        : `${calculateAmount(
-                            parkingAction.parkTime,
-                            parkingAction.leaveTime
-                          )} PLN`}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody> */}
+              <TableBody>
+                {formState &&
+                  formState.map((parkingAction, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{parkingAction.parkingSpaceNumber}</TableCell>
+                      <TableCell>
+                        {parkingAction.carRegistrationPlate}
+                      </TableCell>
+                      <TableCell>
+                        {getSimpleDateTime(parkingAction.parkTime)}
+                      </TableCell>
+                      <TableCell>
+                        {parkingAction.leaveTime
+                          ? getTimeSpent(
+                              parkingAction.parkTime,
+                              parkingAction.leaveTime
+                            )
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            parkingAction.status ===
+                            parkingActionStatusEnum.pending
+                              ? 'default'
+                              : 'outline'
+                          }
+                        >
+                          {parkingAction.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {parkingAction.leaveTime === null
+                          ? 'N/A'
+                          : `${calculateAmount(
+                              parkingAction.parkTime,
+                              parkingAction.leaveTime
+                            )} PLN`}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
             </Table>
           </ScrollArea>
+          <FilterButton />
         </form>
       </DialogContent>
     </Dialog>
+  );
+};
+
+const FilterButton = () => {
+  const { pending } = useFormStatus();
+
+  const handleClick = (event: any) => {
+    if (pending) {
+      event.preventDefault();
+    }
+  };
+
+  return (
+    <Button aria-disabled={pending} type="submit" onClick={handleClick}>
+      Login
+    </Button>
   );
 };
 
