@@ -153,7 +153,7 @@ const FilterButton = () => {
 
   return (
     <Button aria-disabled={pending} type="submit" onClick={handleClick}>
-      Login
+      Fetch
     </Button>
   );
 };
