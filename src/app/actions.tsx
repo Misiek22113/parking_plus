@@ -23,6 +23,8 @@ import {
   parkingSpaceStatusEnum,
   userRoleEnum,
 } from '@/constants/enumConstants';
+import ParkingSpaceInfo from './interfaces/ParkingSpaceInfo';
+import Image from 'next/image';
 
 async function initializeDatabase() {
   const mongoDbUrl = process.env.MONGODB_URL;
@@ -667,5 +669,56 @@ export async function payParking(
     return { isSuccessful: false, message: AppError.message, data: null };
   } finally {
     mongoose.connection.close();
+  }
+}
+
+export async function getParkingSpaceInfo(
+  parkingSpaceNumber: number
+): Promise<ParkingSpaceInfo> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    await mongoose.connect(mongoDbUrl);
+
+    const parkingSpace = await ParkingSpaceModel.findOne<ParkingSpace>({
+      spaceNumber: parkingSpaceNumber,
+    });
+
+    if (!parkingSpace) {
+      throw new AppError('Parking space not found');
+    } else if (parkingSpace.status === parkingSpaceStatusEnum.free) {
+      return {
+        carRegistrationPlate: null,
+        parkTime: null,
+      };
+    }
+
+    const parkingAction = await ParkingActionsModel.findOne<ParkingAction>({
+      parkingSpaceId: parkingSpace._id,
+      status: parkingActionStatusEnum.pending,
+    });
+
+    if (!parkingAction) {
+      throw new AppError('Parking action not found');
+    }
+
+    const car = await CarModel.findOne<Car>({
+      _id: parkingAction.carId,
+    });
+
+    if (!car) {
+      throw new AppError('Car not found');
+    }
+
+    return {
+      carRegistrationPlate: car.registrationPlate,
+      parkTime: parkingAction.parkTime,
+    };
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return AppError.message;
   }
 }

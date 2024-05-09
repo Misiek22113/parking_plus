@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import ParkingSlotCount from '../ParkingSlotCount/ParkingSlotCount';
 import Image from 'next/image';
-import BAR_CHART_ICON from '../../assets/icons/bar-chart-big.svg';
+import BAR_CHART_ICON from '../../../public/icons/bar-chart-big.svg';
 import { ParkingSpacesContext } from '@/context/ParkingSpacesContext';
 import { parkingSpaceStatusEnum } from '@/constants/enumConstants';
 import { useFormState, useFormStatus } from 'react-dom';
