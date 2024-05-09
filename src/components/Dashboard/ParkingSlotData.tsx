@@ -22,18 +22,17 @@ const ParkingSlotData = () => {
     carRegistrationPlate: null,
     parkTime: null,
   });
+  const isSpaceOccupied = parkingSpotData.carRegistrationPlate !== null;
 
   const getParkingSpaceInfoHeader = () => {
     if (selectedSlotNumber === 0) {
       return 'No slot selected';
-    } else if (parkingSpotData.carRegistrationPlate === null) {
+    } else if (isSpaceOccupied === null) {
       return 'Slot is empty';
     } else {
-      return parkingSpotData.carRegistrationPlate;
+      return isSpaceOccupied;
     }
   };
-
-  const isSpaceOccupied = parkingSpotData.carRegistrationPlate !== null;
 
   useEffect(() => {
     async function fetchData() {
@@ -57,7 +56,7 @@ const ParkingSlotData = () => {
         ) : (
           <Card
             title="Parking Slot"
-            className={`-translate-y-2 border-8 border-white  p-4 text-white ${parkingSpotData.carRegistrationPlate === null ? 'bg-teal-500' : 'bg-red-500'}`}
+            className={`-translate-y-2 border-8 border-white  p-4 text-white ${isSpaceOccupied === null ? 'bg-teal-500' : 'bg-red-500'}`}
           >
             <div className="text-center text-3xl font-bold">
               {selectedSlotNumber}
@@ -73,8 +72,7 @@ const ParkingSlotData = () => {
           </div>
         </Card>
       </div>
-      {selectedSlotNumber !== 0 &&
-      parkingSpotData.carRegistrationPlate !== null ? (
+      {selectedSlotNumber !== 0 && isSpaceOccupied !== null ? (
         <>
           <Card className="w-min whitespace-nowrap">
             <CardHeader>
