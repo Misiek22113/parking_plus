@@ -93,7 +93,7 @@ const ParkingSlotData = () => {
             </CardFooter>
           </Card>
           <Image
-            src={CAR_IMAGE}
+            src={`/cars/car${selectedSlotNumber % 10}.jpg`}
             width={500}
             height={50}
             className=" w-4/5 rounded-lg"

@@ -1,5 +1,5 @@
-import BAR_CHART_ICON from '../../assets/icons/bar-chart-big.svg';
 import { useEffect, useState } from 'react';
+import BAR_CHART_ICON from '../../../public/icons/bar-chart-big.svg';
 import Image from 'next/image';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Input } from '../ui/input';
