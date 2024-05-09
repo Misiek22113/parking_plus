@@ -94,7 +94,7 @@ const ParkingSlotData = () => {
             </CardFooter>
           </Card>
           <Image
-            src={`/cars/car${parkingSpotData.carRegistrationPlate.charCodeAt(0) % 18}.jpg`}
+            src={`/cars/car${parkingSpotData.carRegistrationPlate.charCodeAt(0) + (parkingSpotData.carRegistrationPlate.charCodeAt(2) % 18)}.jpg`}
             width={500}
             height={50}
             className=" w-4/5 rounded-lg"
