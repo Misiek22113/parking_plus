@@ -5,7 +5,7 @@ const Dashboard = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <AvailabilityData />
-      <div className="flex flex-1 items-center justify-center bg-[#4B5563]">
+      <div className="w-full flex-1 bg-[#4B5563]">
         <ParkingSlotData />
       </div>
     </div>

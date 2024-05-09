@@ -69,7 +69,7 @@ export default function Payment({
             return {
               ...action,
               leaveTime: currentTime,
-              status: parkingActionStatusEnum.payed,
+              status: parkingActionStatusEnum.paid,
             };
           }
           return action;
