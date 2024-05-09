@@ -194,6 +194,16 @@ export async function orderParkingSpace(
       throw new AppError('Car not found');
     }
 
+    const pendingParkingAction =
+      await ParkingActionsModel.findOne<ParkingAction>({
+        carId: foundCar._id,
+        status: parkingActionStatusEnum.pending,
+      });
+
+    if (pendingParkingAction) {
+      throw new AppError('Car already has a pending parking action');
+    }
+
     const foundUser = await UserModel.findOne<User>({
       username,
     });
@@ -672,6 +682,71 @@ export async function payParking(
   }
 }
 
+export async function fetchFilteredActions(
+  currentState: unknown,
+  formData: FormData
+): Promise<
+  {
+    parkingSpaceNumber: number;
+    status: string;
+    parkTime: Date;
+    leaveTime: Date | null;
+    carRegistrationPlate: string;
+  }[]
+> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+
+  const spot = formData.get('spot');
+  const status = formData.get('status');
+  const license = formData.get('license');
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+
+    await mongoose.connect(mongoDbUrl);
+
+    const parkingActions = await ParkingActionsModel.find();
+
+    let parkingActionsList = [];
+
+    for (const action of parkingActions) {
+      const car = await CarModel.findById(action.carId.toString());
+      const spot = await ParkingSpaceModel.findById(
+        action.parkingSpaceId.toString()
+      );
+
+      if (!car) {
+        throw new AppError('Car not found');
+      }
+
+      action.carRegistrationPlate = car.registrationPlate;
+      const actionObj = action.toObject();
+
+      parkingActionsList.push({
+        parkingSpaceNumber: spot.spaceNumber,
+        status: actionObj.status,
+        parkTime: actionObj.parkTime,
+        leaveTime: actionObj.leaveTime,
+        carRegistrationPlate: car.registrationPlate,
+      });
+    }
+
+    return filterList(
+      parkingActionsList,
+      parseInt(spot as string),
+      license as string,
+      status as string
+    );
+  } catch (error: any) {
+    console.error(error.message);
+    throw new Error(error.message);
+  } finally {
+    mongoose.connection.close();
+  }
+}
+
 export async function getParkingSpaceInfo(
   parkingSpaceNumber: number
 ): Promise<ParkingSpaceInfo> {
@@ -721,4 +796,27 @@ export async function getParkingSpaceInfo(
     console.error(AppError.message);
     return AppError.message;
   }
+}
+
+function filterList(
+  myList: {
+    parkingSpaceNumber: number;
+    status: string;
+    parkTime: Date;
+    leaveTime: Date | null;
+    carRegistrationPlate: string;
+  }[],
+  spot?: number,
+  license?: string,
+  status?: string
+) {
+  return myList.filter((item) => {
+    const spotCondition = spot ? item.parkingSpaceNumber === spot : true;
+    const licenseCondition = license
+      ? item.carRegistrationPlate === license
+      : true;
+    const statusCondition = status ? item.status === status : true;
+
+    return spotCondition && licenseCondition && statusCondition;
+  });
 }

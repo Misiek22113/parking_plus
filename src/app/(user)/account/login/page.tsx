@@ -10,12 +10,12 @@ const LoginPage = () => {
   const [errorMessage, dispatch] = useFormState(login, undefined);
 
   return (
-    <div className="flex flex-col items-center justify-center w-1/2">
+    <div className="flex w-1/2 flex-col items-center justify-center">
       <form
         action={dispatch}
-        className="flex items-start justify-center flex-col gap-4 w-full"
+        className="flex w-full flex-col items-start justify-center gap-4"
       >
-        <div className="flex flex-col gap-1.5 w-full">
+        <div className="flex w-full flex-col gap-1.5">
           <Label htmlFor="username">Username</Label>
           <Input
             type="username"
@@ -24,7 +24,7 @@ const LoginPage = () => {
             required
           />
         </div>
-        <div className="flex flex-col gap-1.5 w-full">
+        <div className="flex w-full flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>
           <Input
             type="password"
@@ -34,11 +34,11 @@ const LoginPage = () => {
           />
         </div>
         {errorMessage && (
-          <div className="text-red-500 text-sm">{errorMessage}</div>
+          <div className="text-sm text-red-500">{errorMessage}</div>
         )}
         <LoginButton />
       </form>
-      <div className="flex flex-col items-center justify-center mt-16">
+      <div className="mt-16 flex flex-col items-center justify-center">
         Don&apos;t have an account?
         <Button variant="link">
           <Link href="/account/register" className="text-blue-500">
