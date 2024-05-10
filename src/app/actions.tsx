@@ -24,7 +24,6 @@ import {
   userRoleEnum,
 } from '@/constants/enumConstants';
 import ParkingSpaceInfo from './interfaces/ParkingSpaceInfo';
-import Image from 'next/image';
 
 async function initializeDatabase() {
   const mongoDbUrl = process.env.MONGODB_URL;
@@ -668,7 +667,7 @@ export async function payParking(
     console.info('Parking paid');
     return {
       isSuccessful: true,
-      message: 'Funds added',
+      message: 'Parking paid',
       data: {
         parkingActionId: parkingAction._id.toString(),
         newUserCredits: foundUser.credits - parseFloat(amount as string),

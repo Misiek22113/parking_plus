@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import PARKING_ICON from '../../../public/icons/square-parking.svg';
-import CAR_IMAGE from '../../../public/cars/car1.jpg';
 import { useContext, useEffect, useState } from 'react';
 import { SelectedSlotContext } from '@/context/SelectedSlotContext';
 import {
@@ -15,6 +14,7 @@ import {
 } from '../ui/card';
 import { getParkingSpaceInfo } from '@/app/actions';
 import ParkingSpaceInfo from '@/app/interfaces/ParkingSpaceInfo';
+import { CAR_IMAGES } from '@/constants/imagesConstants';
 
 const ParkingSlotData = () => {
   const { selectedSlotNumber } = useContext(SelectedSlotContext);
@@ -49,7 +49,7 @@ const ParkingSlotData = () => {
   }, [selectedSlotNumber]);
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-16">
+    <div className="flex h-full flex-col items-center justify-center gap-12">
       <div className="flex w-full flex-row justify-center overflow-hidden">
         {selectedSlotNumber === 0 ? (
           <></>
@@ -94,7 +94,14 @@ const ParkingSlotData = () => {
             </CardFooter>
           </Card>
           <Image
-            src={`/cars/car${parkingSpotData.carRegistrationPlate.charCodeAt(0) + (parkingSpotData.carRegistrationPlate.charCodeAt(2) % 18)}.jpg`}
+            src={
+              CAR_IMAGES[
+                ((parkingSpotData.carRegistrationPlate.charCodeAt(0) +
+                  parkingSpotData.carRegistrationPlate.charCodeAt(2)) %
+                  18) +
+                  1
+              ]
+            }
             width={500}
             height={50}
             className=" w-4/5 rounded-lg"

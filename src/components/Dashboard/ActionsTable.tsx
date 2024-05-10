@@ -64,7 +64,7 @@ const ActionsTable = () => {
     if (!date) {
       setParkingAction(formState);
     }
-  }, [setDate, formState, date]);
+  }, [formState]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -88,6 +88,7 @@ const ActionsTable = () => {
             <Input
               placeholder="Spot"
               name="spot"
+              type="number"
               className="sm:max-w-[170px]"
             />
             <Input
@@ -103,7 +104,7 @@ const ActionsTable = () => {
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value="pending">pending</SelectItem>
-                  <SelectItem value="payed">payed</SelectItem>
+                  <SelectItem value="paid">paid</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -112,8 +113,8 @@ const ActionsTable = () => {
             <Table>
               <TableCaption>
                 {parkingAction && parkingAction.length > 0
-                  ? 'A list parking actions'
-                  : 'There is no such actions'}
+                  ? 'A list of parking actions'
+                  : 'There are no parking actions to display'}
               </TableCaption>
               <TableHeader>
                 <TableRow>
@@ -187,7 +188,7 @@ const FilterButton = () => {
 
   return (
     <Button aria-disabled={pending} type="submit" onClick={handleClick}>
-      Fetch
+      Load history
     </Button>
   );
 };
