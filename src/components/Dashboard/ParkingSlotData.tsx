@@ -56,17 +56,15 @@ const ParkingSlotData = () => {
         ) : (
           <Card
             title="Parking Slot"
-            className={`-translate-y-2 border-8 border-white  p-4 text-white ${isSpaceOccupied === null ? 'bg-teal-500' : 'bg-red-500'}`}
+            className={`relative border-8 border-white p-4 text-white ${isSpaceOccupied === null ? 'bg-teal-500' : 'bg-red-500'}`}
           >
             <div className="text-center text-3xl font-bold">
               {selectedSlotNumber}
             </div>
+            <div className="absolute h-full w-4 bg-white -right-4 -top-4 py-20"></div>
           </Card>
         )}
-        <Card
-          title="Parking Slot"
-          className="-translate-y-2 border-8 border-white p-4"
-        >
+        <Card title="Parking Slot" className="border-8 border-white p-4">
           <div className="text-center text-3xl">
             {getParkingSpaceInfoHeader()}
           </div>
