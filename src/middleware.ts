@@ -58,6 +58,9 @@ export async function middleware(req: NextRequest) {
     }
   } else {
     try {
+      if (req.nextUrl.pathname.substring(0, 3) === '/qr') {
+        return NextResponse.next();
+      }
       const { userRole } = await getUserInfoFromCookie(cookie);
       switch (userRole) {
         case userRoleEnum.admin:

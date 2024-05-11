@@ -55,6 +55,7 @@ export default function Home() {
                     pendingPayment={pendingPayment}
                     setPendingPayment={setPendingPayment}
                     shouldShowPaymentButton
+                    shouldShowQrCode
                   />
                 </>
               ) : (

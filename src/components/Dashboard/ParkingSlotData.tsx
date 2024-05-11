@@ -61,7 +61,7 @@ const ParkingSlotData = () => {
             <div className="text-center text-3xl font-bold">
               {selectedSlotNumber}
             </div>
-            <div className="absolute h-full w-4 bg-white -right-4 -top-4 py-20"></div>
+            <div className="absolute -right-4 -top-4 h-full w-4 bg-white py-20"></div>
           </Card>
         )}
         <Card title="Parking Slot" className="border-8 border-white p-4">

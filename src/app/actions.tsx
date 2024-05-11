@@ -819,3 +819,50 @@ function filterList(
     return spotCondition && licenseCondition && statusCondition;
   });
 }
+
+export async function getPendingPayment(
+  pendingPaymentId: string
+): Promise<CustomResponse<FetchParkingAction | null>> {
+  const mongoDbUrl = process.env.MONGODB_URL;
+
+  try {
+    if (!mongoDbUrl) {
+      throw new AppError('MongoDB URL is not defined');
+    }
+    await mongoose.connect(mongoDbUrl);
+
+    const pendingPayment = await ParkingActionsModel.findOne<ParkingAction>({
+      _id: pendingPaymentId,
+      status: parkingActionStatusEnum.pending,
+    })
+      .populate('carId')
+      .populate('parkingSpaceId');
+
+    if (!pendingPayment) {
+      throw new AppError('Pending payment not found');
+    }
+
+    return {
+      isSuccessful: true,
+      message: 'Pending payment found',
+      data: {
+        _id: pendingPayment._id.toString(),
+        parkingSpaceId: pendingPayment.parkingSpaceId.toString(),
+        parkingSpaceNumber: (
+          pendingPayment.parkingSpaceId as unknown as ParkingSpace
+        ).spaceNumber,
+        carId: pendingPayment.carId.toString(),
+        carRegistrationPlate: (pendingPayment.carId as unknown as Car)
+          .registrationPlate,
+        status: pendingPayment.status,
+        parkTime: pendingPayment.parkTime,
+        leaveTime: pendingPayment.leaveTime,
+      },
+    };
+  } catch (AppError: any) {
+    console.error(AppError.message);
+    return { isSuccessful: false, message: AppError.message, data: null };
+  } finally {
+    mongoose.connection.close();
+  }
+}

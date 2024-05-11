@@ -25,14 +25,17 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
 import { parkingCostArray } from '@/constants/parkingConstants';
+import QrCodeDialog from './QrCodeDialog';
 
 export default function Payment({
   pendingPayment,
   shouldShowPaymentButton = false,
+  shouldShowQrCode = false,
   setPendingPayment,
 }: {
   pendingPayment: FetchParkingAction;
   shouldShowPaymentButton?: boolean;
+  shouldShowQrCode?: boolean;
   setPendingPayment: (value: FetchParkingAction | undefined) => void;
 }) {
   const { toast } = useToast();
@@ -147,6 +150,9 @@ export default function Payment({
 
         <CardFooter className="flex gap-4">
           {shouldShowPaymentButton && <PayButton />}
+          {shouldShowQrCode && (
+            <QrCodeDialog parkingActionId={pendingPayment._id} />
+          )}
           <PaymentPlanHoverButton />
         </CardFooter>
       </form>
