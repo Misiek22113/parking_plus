@@ -6,6 +6,10 @@ import { userRoleEnum } from './constants/enumConstants';
 export async function middleware(req: NextRequest) {
   const cookie = req.cookies.get('session')?.value;
 
+  if (req.nextUrl.pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+  
   if (
     req.nextUrl.pathname.startsWith('/_next') ||
     (process.env.NODE_ENV === 'development' && process.env.OMIT_AUTH === 'true')
