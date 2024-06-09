@@ -8,6 +8,8 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import DemoPaymentDialog from './DemoPaymentDialog';
+import { paymentConstants } from '@/constants/paymentConstants';
+import Link from 'next/link';
 
 export default function AccountFunds() {
   return (
@@ -24,8 +26,9 @@ export default function AccountFunds() {
       </CardContent>
       <CardFooter className="flex gap-4">
         <DemoPaymentDialog />
-        <Button disabled>Google Pay</Button>
-        <Button disabled>BLIK</Button>
+        <Button><Link href={paymentConstants.paymentLinks.clientsChoicePayment}>Add funds</Link></Button>
+        {/* <Button disabled>Google Pay</Button>
+        <Button disabled>BLIK</Button> */}
       </CardFooter>
     </Card>
   );

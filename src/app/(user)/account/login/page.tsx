@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { useFormState, useFormStatus } from 'react-dom';
+import { GoogleSignInButton } from '@/components/ui/authButton';
 
 const LoginPage = () => {
   const [errorMessage, dispatch] = useFormState(login, undefined);
@@ -38,6 +39,14 @@ const LoginPage = () => {
         )}
         <LoginButton />
       </form>
+      <div className="flex flex-col items-center w-full">
+        <div className="flex w-full items-center mt-5">
+          <div className="flex-grow border-t-2 border-black"></div>
+          <span className="mx-4 text-black">OR</span>
+          <div className="flex-grow border-t-2 border-black"></div>
+        </div>
+        <GoogleSignInButton />
+      </div>
       <div className="mt-16 flex flex-col items-center justify-center">
         Don&apos;t have an account?
         <Button variant="link">
